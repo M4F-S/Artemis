@@ -14,8 +14,9 @@ This threat model covers the Artemis product itself **and** the customer's endpo
 | **T3** | APT / state-aligned | 0-days, kernel rootkits, eBPF abuse | LightSpy, BPFDoor, custom UEFI implant |
 | **T4** | AI-augmented attacker (new) | LLM-generated polymorphic loaders, prompt-injection of agents, vibeware | MalTerminal-class, "Imprompter"-style indirect injection |
 | **T5** | Malicious insider | Legitimate creds, knowledge of layout | Data exfil via personal cloud, sabotage |
+| **T6** | Autonomic-loop abuser | Targets Artemis's own learning / response loop | Federation poisoning, RL-policy gaming, BAS-engine subversion, false-flag triggering of auto-rollback |
 
-Artemis must demonstrably handle **T0–T2 + T4** at v1. T3 and T5 are stretch (T3 needs hardware partnerships; T5 needs deeper UEBA).
+Artemis must demonstrably handle **T0–T2 + T4 + T6** at v1. T3 and T5 are stretch (T3 needs hardware partnerships; T5 needs deeper UEBA). T6 is mitigated by the autonomic-safety contract in [ADR-0010](09-adr/0010-autonomic-safety.md) and the rollback-safety contract in [ADR-0011](09-adr/0011-self-healing-rollback.md).
 
 ## Assets
 
@@ -23,9 +24,15 @@ Artemis must demonstrably handle **T0–T2 + T4** at v1. T3 and T5 are stretch (
 2. User identity tokens (OAuth, Kerberos, JWTs in browser storage).
 3. Local secrets (SSH keys, AWS creds, kubeconfigs, browser cookies, password vaults).
 4. Source code & build pipelines (developer endpoints).
-5. The Artemis agent itself (its config, its keys, its detection logic).
-6. The Artemis control plane (multi-tenant SaaS, customer telemetry).
-7. The federated IoC exchange.
+5. Email mailbox content + auth (P18 protection scope).
+6. Network traffic on the customer LAN / VPC (P19).
+7. Cloud workloads + cloud control plane (P20).
+8. Customer's own AI applications + their LLM-API quotas / models (P21).
+9. Backups + immutable snapshots (P22 / P15).
+10. The Artemis agent itself (its config, its keys, its detection logic).
+11. The Artemis control plane (multi-tenant SaaS, customer telemetry).
+12. **The Artemis Knowledge store** (rules, models, RL policies, attack-graph cache) — *new in v1, primary target of T6*.
+13. The federated IoC exchange.
 
 ## Trust boundaries
 

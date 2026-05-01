@@ -48,20 +48,47 @@ Exit criterion: design partner runs Artemis on a 50-host Linux fleet for 2 weeks
 - Supply-chain runtime guard (P11) — npm/pypi/cargo install hooks.
 - Compliance bundles (P13) — SOC 2 + ISO 27001 evidence export.
 
-## Phase 5 — Active Defense unlock (≈ 6 weeks)
+## Phase 5 — Active Defense + autonomic foundation (≈ 8 weeks)
 
 - P14 capabilities A–E built (already specified, build now), shipped **off**.
 - Legal review per US/EU/UK/CA/AU jurisdictions.
 - Selective unlock with customer dual-control.
 - P12 PQ signing fully in code-update pipeline.
+- **P15 self-healing**: agent self-protection + auto-restart + Btrfs/ZFS/VSS snapshot integration.
+- **P16 self-evolving foundations**: Knowledge store + signed rule pipeline + LLM rule-synthesis review queue (rules ship through it; auto-promotion still gated by Phase 6).
 
-## Stretch (post-Phase 5)
+## Phase 6 — Autonomic loop GA (≈ 10 weeks)
+
+- **P15** completes: secret-rotation integrations, decentralised mesh fallback (read-only), continuous attestation reconciliation.
+- **P16** completes: online ML with Byzantine-robust federation, RL response ranker, operator-feedback FPR tuning, attack-graph mining.
+- **P17 BAS**: curated technique library + scheduled canary-host runs + gap-to-rule pipeline.
+- ADR-0010 / ADR-0011 safety contracts in production with CI invariants enforced.
+
+Exit criterion: a tenant runs Artemis for 30 days; ≥10 incidents close with autonomic-loop assistance; zero false-rollbacks; FPR-tuning produces measurable rule-quality improvement.
+
+## Phase 7 — Domain expansion (≈ 16 weeks)
+
+- **P18 Email & phishing** (Microsoft 365 + Google Workspace API mode).
+- **P19 NDR** (endpoint co-sensor mode + tap-mode appliance).
+- **P20 CWPP** (container runtime + K8s admission + cloud-config posture + cloud audit log ingest).
+- **P21 LLM/AI-app firewall** (sidecar + SDK shim + standalone gateway).
+- **P22 Hunting + DFIR + backup** (notebook UI + IR runbooks + Veeam/Rubrik/AWS-Backup connectors).
+
+## Phase 8 — 42 Berlin pilot (parallel to Phase 1–4)
+
+- 42 intent-template pack ships in Phase 1 (`docs/15-42-berlin-adaptation.md`).
+- BYOD per-user enrolment ships in Phase 2.
+- EU residency + DPIA package ships in Phase 3.
+- "Break Artemis" CTF and bug-bounty programme launches in Phase 5.
+
+## Stretch (post-Phase 7)
 
 - Confidential-VM workloads (P9 Phase 3) for server tenants.
 - Identity-fusion deeper UEBA (T5 insider).
 - Mobile sensors (Android first; iOS strictly through MDM-managed posture).
 - IoT / OT signal collection via passive network sensor.
 - Marketplace for third-party rules / playbooks / decoys.
+- Federation across 42 campuses (~50 sites) once Berlin pilot succeeds.
 
 ## Risks tracked through the roadmap
 
@@ -74,3 +101,7 @@ Exit criterion: design partner runs Artemis on a 50-host Linux fleet for 2 weeks
 | Adversary adapts to certified-robust models | Continuous red-team; defence-in-depth via P3 + P4 |
 | Legal exposure from P14 | Default-off; per-jurisdiction policy; dual-control |
 | Customer privacy concerns | DP + BYOK + pseudonymisation hardwired |
+| **Autonomic-loop abuse (T6)** | ADR-0010 hard contract; CI invariants; multi-signal gates |
+| **False-positive auto-rollback** | ADR-0011 gates; opt-in per scope; 60-second cancel; tombstone retention |
+| **Federation poisoning** | Byzantine-robust aggregation; per-tenant contribution caps; outlier quarantine |
+| **Scope creep from XDR domain expansion** | Each domain phased explicitly; integrations before native build where possible |

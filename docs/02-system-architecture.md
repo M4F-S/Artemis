@@ -49,6 +49,18 @@
 └───────────────────────────────────────────────────────────────────┘
 ```
 
+## Autonomic loop (MAPE-K)
+
+The platform is structured as an autonomic system. Each block above maps to a stage of the IBM MAPE-K loop:
+
+- **Monitor** — sensors + ingest pipeline (P1, P2, P10, P18, P19, P20, P21).
+- **Analyze** — detection engine + ML scorers + provenance graph (P7, P8).
+- **Plan** — playbook ranker + RL policy (P5 narration, P16 selection).
+- **Execute** — Active Defense Orchestrator (P14) + Self-Healing Controller (P15).
+- **Knowledge** — signed Knowledge store: rules, models, deception memory, attack-graph cache, BAS results (P16, P17).
+
+The autonomic-safety contract ([ADR-0010](09-adr/0010-autonomic-safety.md)) bounds what Plan and Execute may do without humans, and how the Knowledge store is protected from poisoning. The rollback-safety contract ([ADR-0011](09-adr/0011-self-healing-rollback.md)) bounds destructive auto-actions.
+
 ## Core services
 
 | Service | Responsibility | Tech |
@@ -58,6 +70,16 @@
 | Provenance Graph | Build/query causal graphs per tenant | Memgraph |
 | LLM Copilot | Plain-English alert explanations, triage suggestions | Anthropic SDK + Claude Sonnet (cached system prompts) |
 | Active Defense | Containment playbook executor (P14, gated) | Rust + signed playbooks |
+| **Self-Healing Controller (P15)** | Watchdog re-deploy, snapshot rollback, secret rotation, attestation reconciliation, mesh fallback coordination | Rust |
+| **Knowledge Store (P16)** | Versioned, signed store of rules, models, RL policies, attack-graphs, deception memory | Rust + Postgres (versioned) + signed manifests |
+| **Rule Synthesiser (P16)** | LLM-driven rule drafting from closed incidents → human review queue | Rust + Claude API |
+| **Federation Aggregator (P16)** | Byzantine-robust aggregation of encrypted gradients across tenants | Rust + OpenFHE |
+| **BAS Orchestrator (P17)** | Schedules + runs curated attack techniques against canary scope | Rust + sandboxed runners |
+| **Email Connector (P18)** | Microsoft 365 / Google Workspace API integration; URL detonation; attachment microVM | Rust + Firecracker |
+| **NDR Sensor (P19)** | Tap/SPAN appliance + cloud-VPC mirror collector | Rust + DPDK / netlink |
+| **Cloud Workload Sensors (P20)** | Container annotation, K8s admission webhook, image scanner, cloud-config sweeper | Rust + Go (K8s client) |
+| **LLM Firewall (P21)** | Sidecar / SDK / gateway inspecting AI-app traffic | Rust |
+| **Hunting Service (P22)** | Notebook UI, IR runbook engine, backup connectors | Next.js + Rust workers |
 | Reporting | Dashboards + PDF + compliance bundles | Next.js + Grafana + Pandoc |
 | Identity Connector | OAuth/SAML federation, ITDR signals | Rust |
 | Federated IoC | Encrypted aggregate signals across tenants | OpenFHE (CKKS) |

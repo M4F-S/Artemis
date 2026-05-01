@@ -14,9 +14,13 @@ Mainstream NGAV/EDR/XDR vendors (Defender, CrowdStrike, SentinelOne, Sophos, Pal
 - Supply-chain runtime risk (npm/pypi typosquatting +104% YoY).
 - SMBs that need plain-English explanations, not enterprise dashboards.
 
+## Marquee
+
+Artemis is **the AI-native, autonomic security platform**. Both halves matter equally: AI-native (built for LLM-era attacks and defences) and autonomic (self-evolving + self-healing under an explicit safety contract — see [ADR-0010](docs/09-adr/0010-autonomic-safety.md) and [ADR-0011](docs/09-adr/0011-self-healing-rollback.md)).
+
 ## Pillars
 
-The product is organised around 14 capability pillars (full detail in [`docs/04-detection-pillars/`](docs/04-detection-pillars/)):
+The product is organised around 22 capability pillars (full detail in [`docs/04-detection-pillars/`](docs/04-detection-pillars/)):
 
 | # | Pillar | Status |
 |---|---|---|
@@ -34,6 +38,14 @@ The product is organised around 14 capability pillars (full detail in [`docs/04-
 | P12 | Post-quantum code signing | Spec |
 | P13 | Reporting & dashboards | Spec |
 | P14 | Active Defense Agent (legally gated) | Spec |
+| **P15** | **Self-Healing** *(marquee)* | Spec |
+| **P16** | **Self-Evolving (continual ML + auto-rules)** *(marquee)* | Spec |
+| P17 | Built-in BAS / self-red-team | Spec |
+| P18 | Email & phishing protection | Spec |
+| P19 | Network detection (NDR) | Spec |
+| P20 | Cloud workload protection (CWPP) | Spec |
+| P21 | LLM / AI-app firewall | Spec |
+| P22 | Threat hunting + DFIR + backup integration | Spec |
 
 ## Read order
 
@@ -56,6 +68,7 @@ The product is organised around 14 capability pillars (full detail in [`docs/04-
 - Picking up an existing thread? Read [Session handoff](docs/14-session-handoff.md) — most recent entry first.
 - Need a ticket? Open the [Task backlog](docs/12-task-backlog.md).
 - Looking for design partners? See the [Design-partner program](docs/13-design-partner-program.md).
+- Targeting 42 Berlin specifically? Read [42 Berlin adaptation](docs/15-42-berlin-adaptation.md) and [42 Berlin outreach](docs/16-42-berlin-outreach.md).
 - Continuing as Claude Code? Read [`CLAUDE.md`](CLAUDE.md) before doing anything.
 
 ## License

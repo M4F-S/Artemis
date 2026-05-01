@@ -34,8 +34,12 @@ You are working on **Artemis**, a next-generation cross-platform endpoint protec
 2. **No outbound action that targets attacker-controlled hosts**, ever. Anything resembling probing, exploitation, payload delivery, or unauthorised access against third-party systems is **out of scope** and must not be implemented even on speculation.
 3. **Privacy-by-default.** Document content, clipboard, keystrokes — never collected.
 4. **Multi-tenant isolation is sacred.** Any code path that handles a `tenant_id` must be reviewed for isolation.
-5. **Treat all telemetry as untrusted input** — including for the LLM copilot. Schema-validate, never let it reach instruction position raw.
-6. **Sign everything.** Updates, models, rules — see ADR-0007 / ADR-0009 / P12.
+5. **Treat all telemetry as untrusted input** — including for the LLM copilot and the LLM rule synthesiser. Schema-validate, never let it reach instruction position raw.
+6. **Sign everything.** Updates, models, rules, RL policies, BAS techniques — see ADR-0007 / ADR-0009 / ADR-0010 / P12.
+7. **Autonomic actions are bounded** ([ADR-0010](docs/09-adr/0010-autonomic-safety.md)). The autonomic loop never invents new action types at runtime; it ranks playbooks from a fixed allowlist. RL only proposes; deterministic policy gates execute. Do not silently widen the action allowlist.
+8. **Auto-rollback is multi-signal-gated** ([ADR-0011](docs/09-adr/0011-self-healing-rollback.md)). Auto-rollback never triggers without severity gate + multi-signal confirmation + verified backup + tenant pre-authorisation + cloud confirmation + 60-second cancel window. Mesh-elected fallback coordinators are read-only with respect to destructive actions.
+9. **Federation is Byzantine-robust.** Any change to the aggregation algorithm or contribution caps requires a new ADR.
+10. **BAS execution is sandboxed.** P17 may only run techniques from the curated library against canary scope. The mutation engine cannot synthesise novel attacks.
 
 ## When in doubt
 

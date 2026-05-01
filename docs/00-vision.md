@@ -26,13 +26,22 @@ Meanwhile, the threat landscape moved:
 - Compliance pressure: SOC 2, HIPAA, PCI-DSS, increasingly NIS2 / DORA in EU.
 - Buying triggers: cyber insurance renewal, customer security questionnaires, a recent breach in their vertical.
 
+## Marquee positioning
+
+Artemis is **the AI-native, autonomic security platform** — both halves matter equally:
+
+- **AI-native** — built for the world where attackers and defenders both use LLMs.
+- **Autonomic** — self-evolving (continual learning + auto-rule synthesis) and self-healing (auto-recovery, auto-rollback, auto-rotation), bounded by an explicit safety contract (ADR-0010 / ADR-0011).
+
 ## Value props
 
 1. **AI-native by default** — built for the world where attackers and defenders both use LLMs.
-2. **Plain-English explanations** — every alert is human-readable; the SOC-copilot answers "why did Artemis block this?" in one paragraph.
-3. **Privacy-respecting** — differential privacy + federated IoC sharing; the customer's raw telemetry never leaves their tenant.
-4. **Hard-to-fool** — certified-robust ML, hardware-rooted attestation, and active deception layered together.
-5. **One agent, one console** — Linux + Windows + macOS + browser, no per-OS SKUs.
+2. **Self-evolving** — gets better at its job over time. LLM rule synthesis from incidents; continual ML with poisoning resistance; built-in BAS keeps Artemis honest.
+3. **Self-healing** — auto-restarts disabled agents, auto-rolls-back ransomware'd hosts (under safety gates), auto-rotates compromised secrets.
+4. **Plain-English explanations** — every alert is human-readable; the SOC-copilot answers "why did Artemis block this?" in one paragraph.
+5. **Privacy-respecting** — differential privacy + federated IoC sharing; the customer's raw telemetry never leaves their tenant.
+6. **Hard-to-fool** — certified-robust ML, hardware-rooted attestation, and active deception layered together.
+7. **One platform, one console** — endpoint + identity + email + network + cloud + AI-app, all OCSF-aligned.
 
 ## Competitive matrix
 

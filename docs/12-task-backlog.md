@@ -142,12 +142,75 @@ Status legend: ☐ open · ◐ in progress · ☑ done · ✗ blocked.
 
 ---
 
-## Phase 5 — Active Defense unlock (≈ 6 weeks, gated by legal)
+## Phase 5 — Active Defense + autonomic foundation (≈ 8 weeks)
 
-- P14 capabilities A–E shippable, locked off by default (~10 d).
-- Per-jurisdiction policy framework (~5 d).
-- Dual-control workflow (~3 d).
-- PQ signing in code-update pipeline (~5 d).
+| ID | Title | Owner | Est |
+|---|---|---|---|
+| P5-T01 | P14 capabilities A–E shippable, locked off by default | Daemon eng + control-plane eng | 10 d |
+| P5-T02 | Per-jurisdiction policy framework | Control-plane eng | 5 d |
+| P5-T03 | Dual-control workflow for destructive actions | Console eng | 3 d |
+| P5-T04 | PQ signing in code-update pipeline | Daemon eng | 5 d |
+| P5-T05 | P15.S1 agent self-protection + cloud watchdog re-deploy | Daemon eng | 5 d |
+| P5-T06 | P15.S2 Btrfs/ZFS/VSS snapshot integration + rollback (manual approval) | Daemon eng | 7 d |
+| P5-T07 | Knowledge store skeleton (Postgres + signed manifests) | Control-plane eng | 5 d |
+| P5-T08 | LLM rule-synthesiser + human review queue | Detection author + control-plane eng | 7 d |
+
+---
+
+## Phase 6 — Autonomic loop GA (≈ 10 weeks)
+
+| ID | Title | Owner | Est |
+|---|---|---|---|
+| P6-T01 | P15.S3 secret-rotation integrations (Vault, AWS SM, GCP SM, Azure KV) | Control-plane eng | 7 d |
+| P6-T02 | P15.S4 continuous attestation reconciliation | Daemon eng | 5 d |
+| P6-T03 | P15.S5 decentralised mesh fallback (read-only) | Daemon eng | 10 d |
+| P6-T04 | P15.S6 damage-assessment + restore plan | Daemon eng + control-plane eng | 7 d |
+| P6-T05 | P16.E1 online ML with Byzantine-robust federated aggregation | ML eng | 10 d |
+| P6-T06 | P16.E3 RL response ranker (with safety constraints) | ML eng | 10 d |
+| P6-T07 | P16.E4 operator-feedback FPR tuning (bounded) | Detection author | 5 d |
+| P6-T08 | P16.E6 auto-deception placement learning | ML eng | 5 d |
+| P6-T09 | P16.E7 attack-graph mining job | Control-plane eng | 5 d |
+| P6-T10 | P17 BAS curated technique library v0 (20 ATT&CK techniques) | Detection author + red-team | 10 d |
+| P6-T11 | P17 BAS scheduled runner + canary scope enforcement | Control-plane eng | 5 d |
+| P6-T12 | P17 BAS gap-to-rule pipeline | Detection author | 5 d |
+| P6-T13 | ADR-0010 / ADR-0011 CI invariants (action allowlist, multi-signal gate, schema validation, federation Byzantine bound) | All | 5 d |
+
+Exit criterion: 30-day tenant run; ≥10 incidents auto-assisted; zero false-rollbacks; measurable rule-quality lift.
+
+---
+
+## Phase 7 — Domain expansion (≈ 16 weeks; sub-tracks can run in parallel)
+
+| ID | Title | Owner | Est |
+|---|---|---|---|
+| P7-T01 | P18 Microsoft 365 + Google Workspace API connector | Email-track eng | 10 d |
+| P7-T02 | P18 URL detonation sandbox | Email-track eng | 7 d |
+| P7-T03 | P18 attachment microVM (Firecracker) | Email-track eng | 10 d |
+| P7-T04 | P19 endpoint co-sensor for network metadata | Sensor eng | 5 d |
+| P7-T05 | P19 tap/SPAN appliance MVP | NDR-track eng | 15 d |
+| P7-T06 | P19 JA4 + DGA + DNS-tunnel detectors | NDR-track eng + ML eng | 7 d |
+| P7-T07 | P20 container runtime annotation + per-image baselines | CWPP-track eng | 7 d |
+| P7-T08 | P20 K8s admission webhook (validating + mutating) | CWPP-track eng | 7 d |
+| P7-T09 | P20 image scanner integration (Trivy/Grype) | CWPP-track eng | 5 d |
+| P7-T10 | P20 cloud-config posture sweepers (AWS/GCP/Azure) | CWPP-track eng | 10 d |
+| P7-T11 | P21 LLM firewall sidecar + SDK shim | AI-app-track eng | 10 d |
+| P7-T12 | P21 prompt-injection + data-egress classifiers | ML eng | 10 d |
+| P7-T13 | P22 hunter's notebook UI | Console eng | 10 d |
+| P7-T14 | P22 IR runbook engine | Control-plane eng | 7 d |
+| P7-T15 | P22 backup connectors (Veeam, Rubrik, AWS Backup, restic) | Control-plane eng | 10 d |
+
+---
+
+## Phase 8 — 42 Berlin pilot (parallel to Phase 1+)
+
+| ID | Title | Owner | Est |
+|---|---|---|---|
+| P8-T01 | 42 cursus intent-template pack (born2beroot, minishell, ft_irc, webserv, inception, ctf/pwn) | Detection author + 42 contributor | 5 d |
+| P8-T02 | BYOD per-user enrolment flow + consent UI | Console eng + sensor eng | 7 d |
+| P8-T03 | EU residency + DPIA template package | Control-plane eng + counsel | 5 d |
+| P8-T04 | Public bug-bounty programme launch | Project owner | 1 wk |
+| P8-T05 | "Break Artemis" CTF event preparation | Red-team + 42 liaison | 2 wk |
+| P8-T06 | First demo + outreach with 42 leadership (per `docs/16-42-berlin-outreach.md`) | Project owner | ongoing |
 
 ---
 
@@ -158,4 +221,6 @@ Track here as ideas surface. Move into a phase when ready.
 - Mobile sensors (Android via MDM posture).
 - Confidential-VM workloads (P9 phase 3).
 - Marketplace for third-party rules.
-- Rule store federation.
+- Rule-store federation.
+- Federation across all 42 campuses (~50 sites) once Berlin pilot succeeds.
+- Quantum-safe networking (beyond P12 code signing).
