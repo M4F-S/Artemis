@@ -1,0 +1,53 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*~
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Rust (when code phase begins)
+target/
+Cargo.lock.bak
+**/*.rs.bk
+
+# Node / web (console + browser ext)
+node_modules/
+.next/
+.pnpm-store/
+.turbo/
+dist/
+build/
+
+# Python (tools, scripts)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# eBPF / C
+*.o
+*.bpf.o
+*.skel.h
+
+# Local config / secrets — must never be committed
+*.env
+*.env.local
+.envrc
+secrets/
+*.pem
+*.key
+*.crt
+*.p12
+
+# Build / coverage / logs
+*.log
+coverage/
+*.lcov
+*.profraw
+*.profdata
+
+# Local agent runtime
+spool/
+artemis-data/

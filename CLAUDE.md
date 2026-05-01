@@ -1,0 +1,51 @@
+# CLAUDE.md — context for Claude Code sessions on this repo
+
+You are working on **Artemis**, a next-generation cross-platform endpoint protection product targeted at the 10–500-seat SMB / mid-market.
+
+## Current state
+
+- **Phase 0 — architecture spec.** No production code yet. Repo contains only design documents.
+- The user (project owner) has approved the spec and handed `docs/09-adr/0009-active-defense-policy.md` plus surrounding docs to a security lawyer for review.
+- Phase 1 (Linux MVP, Rust + eBPF) is queued but not started. Begin only when the user says so.
+
+## Read these first, in order
+
+1. [`README.md`](README.md) — overview.
+2. [`docs/00-vision.md`](docs/00-vision.md) — problem and customer.
+3. [`docs/01-threat-model.md`](docs/01-threat-model.md) — adversary tiers and trust boundaries.
+4. [`docs/02-system-architecture.md`](docs/02-system-architecture.md) — components.
+5. [`docs/04-detection-pillars/`](docs/04-detection-pillars/) — every capability pillar P1–P14.
+6. [`docs/08-roadmap.md`](docs/08-roadmap.md) — phasing.
+7. [`docs/12-task-backlog.md`](docs/12-task-backlog.md) — actionable tickets, organised by phase.
+8. [`docs/14-session-handoff.md`](docs/14-session-handoff.md) — what the previous session did, what's next.
+
+## How to continue
+
+- Pick a ticket from `docs/12-task-backlog.md`. Tickets carry acceptance criteria.
+- If the ticket touches a pillar, re-read the pillar doc before coding.
+- Honor the ADRs in `docs/09-adr/` — they're locked decisions; argue for changes via a new ADR superseding the old one, not by silently deviating.
+- Branch naming: `claude/<short-task>-<id>`.
+- Commit messages: imperative mood, scoped prefix (`feat:`, `fix:`, `docs:`, `chore:`, `test:`).
+- Always update `docs/14-session-handoff.md` at the end of a working session.
+
+## Hard rules — read these every session
+
+1. **Do not implement P14 (Active Defense) outbound capabilities** until the legal review comes back and the project owner says so. Capabilities A–E (perimeter-internal) may be built and shipped *off*.
+2. **No outbound action that targets attacker-controlled hosts**, ever. Anything resembling probing, exploitation, payload delivery, or unauthorised access against third-party systems is **out of scope** and must not be implemented even on speculation.
+3. **Privacy-by-default.** Document content, clipboard, keystrokes — never collected.
+4. **Multi-tenant isolation is sacred.** Any code path that handles a `tenant_id` must be reviewed for isolation.
+5. **Treat all telemetry as untrusted input** — including for the LLM copilot. Schema-validate, never let it reach instruction position raw.
+6. **Sign everything.** Updates, models, rules — see ADR-0007 / ADR-0009 / P12.
+
+## When in doubt
+
+- Re-read the relevant pillar doc.
+- If a decision feels architectural, write an ADR rather than encoding the choice silently.
+- Ask the project owner; do not guess on legal, privacy, or licensing.
+
+## Tools and conventions
+
+- Language: Rust for sensors + daemon + control plane services. TypeScript + Next.js for console + browser extension.
+- Linter / formatter: `cargo fmt` + `cargo clippy -D warnings`; `pnpm lint`; `markdownlint` on docs.
+- Test layout: unit tests next to code; integration in `tests/` per crate; end-to-end in `e2e/` at workspace root.
+- Threat-model updates: any new component or external integration triggers a threat-model review (`docs/01-threat-model.md`).

@@ -49,6 +49,15 @@ The product is organised around 14 capability pillars (full detail in [`docs/04-
 10. [ADRs](docs/09-adr/) — locked architectural decisions.
 11. [Glossary](docs/10-glossary.md).
 
+## Picking up the work
+
+- New here? Read [Onboarding](docs/11-onboarding.md) (60-minute path).
+- Want to contribute? Read [`CONTRIBUTING.md`](CONTRIBUTING.md).
+- Picking up an existing thread? Read [Session handoff](docs/14-session-handoff.md) — most recent entry first.
+- Need a ticket? Open the [Task backlog](docs/12-task-backlog.md).
+- Looking for design partners? See the [Design-partner program](docs/13-design-partner-program.md).
+- Continuing as Claude Code? Read [`CLAUDE.md`](CLAUDE.md) before doing anything.
+
 ## License
 
 Undecided. See [ADR-0008](docs/09-adr/0008-licensing.md). Default-closed until set.
