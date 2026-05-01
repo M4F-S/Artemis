@@ -71,6 +71,15 @@ The product is organised around 22 capability pillars (full detail in [`docs/04-
 - Targeting 42 Berlin specifically? Read [42 Berlin adaptation](docs/15-42-berlin-adaptation.md) and [42 Berlin outreach](docs/16-42-berlin-outreach.md).
 - Continuing as Claude Code? Read [`CLAUDE.md`](CLAUDE.md) before doing anything.
 
+## Implementation-readiness pack
+
+- [Engineering bootstrap](docs/17-engineering-bootstrap.md) — workspace layout, dev env, CI, code style.
+- [Team & headcount](docs/18-team-and-headcount.md) — role profiles, hiring sequence, how many people per phase.
+- [Cost model](docs/19-cost-model.md) — Phase 1–4 burn rate.
+- [Definition of Done](docs/20-definition-of-done.md) — observable exit criteria per phase.
+- [Kickoff checklist](docs/21-kickoff-checklist.md) — single-page gate before first commit.
+- [Apollo (offensive testing companion)](docs/22-apollo-offensive-companion.md) — sister project; lab-only (per [ADR-0012](docs/09-adr/0012-apollo-scope.md)).
+
 ## License
 
 Undecided. See [ADR-0008](docs/09-adr/0008-licensing.md). Default-closed until set.

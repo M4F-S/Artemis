@@ -121,6 +121,76 @@ Format: dated heading + what was done + what's next + open questions.
 
 ---
 
+---
+
+## 2026-05-01 — Session 3 (Claude Code, opus-4-7)
+
+### What was done
+
+- **Implementation-readiness pack** added (5 docs):
+  - `docs/17-engineering-bootstrap.md` — workspace layout, devcontainer/nix flake, build/test, branching, code style, secrets.
+  - `docs/18-team-and-headcount.md` — concrete answer to "how many colleagues?" + role profiles R1–R10 + hiring sequence.
+  - `docs/19-cost-model.md` — Phase 1–4 monthly burn (~$1.1k/mo at start, scaling to ~$5k/mo by Phase 4) + people cost ranges.
+  - `docs/20-definition-of-done.md` — observable per-phase exit criteria with cross-cutting always-green list.
+  - `docs/21-kickoff-checklist.md` — single-page gate before first commit.
+- **Apollo offensive testing companion** designed and documented:
+  - `docs/22-apollo-offensive-companion.md` — what Apollo is, what it isn't, scope, capabilities, repo layout.
+  - `docs/09-adr/0012-apollo-scope.md` — separate-repo isolation, target-allowlist enforcement at three layers, no-novel-attack-synthesis bound, future-SKU gating per jurisdiction (US ECCN / EU Dual-Use 2021/821 / Wassenaar / pen-testing licences).
+  - Owner decision recorded: "Internal lab + future SKU for advanced customers."
+- **Active Defense tier ladder** added:
+  - `docs/09-adr/0013-active-defense-tiers.md` — Tier 0–5 ladder; NacConnector trait; reversibility / multi-signal / rate-limit / cancel-window contract.
+  - `docs/04-detection-pillars/p14-active-defense.md` rewritten around tiers; capability G (NAC) added; capabilities A–F mapped to tiers.
+  - Owner decision recorded: NAC v0 connector = FreeRADIUS + 802.1X reference. UniFi + pfSense in Phase 6.
+- **42 Berlin Tier 4/5 flow** added in `docs/15-42-berlin-adaptation.md` (network-block + escalate-to-administration with default authority chains and 60-second cancel).
+- **GitHub config skeletons** added: `.github/PULL_REQUEST_TEMPLATE.md`, `.github/CODEOWNERS`, `.github/workflows/ci.yml.tpl`, `.github/workflows/security.yml.tpl`. Templates include hard-rules-scan and Apollo-isolation invariants.
+- **Cross-cutting updates**:
+  - `README.md` — links the implementation-readiness pack + Apollo doc + 42 docs.
+  - `CLAUDE.md` — adds Hard Rules #11 (Apollo isolation) and #12 (P14 tier-ladder safety).
+  - `docs/01-threat-model.md` — adds threat tables for Tier-4 NAC abuse, NAC connector layer, Apollo, and the autonomic loop (T6 surface).
+  - `docs/02-system-architecture.md` — alert-path now references tiers; Apollo box added.
+  - `docs/08-roadmap.md` — Phase 5 adds Tier 0–3 + NAC v0; Phase 6 adds Apollo Phase 1 + UniFi/pfSense.
+  - `docs/12-task-backlog.md` — Phase-0 expanded (P0-T08 kickoff checklist, P0-T09 42 outreach); Phase-1 P1-T00 added; Phase-5 expanded with tier + NAC + Apollo seed (P5-T09–T13); Phase-6 expanded with Apollo bootstrap + connectors (P6-T14–T18).
+
+### Decisions made (this session)
+
+- **Product/scope**: Complete XDR is locked from session 2; this session converts it into actionable Phase-5–8 tickets.
+- **Apollo**: Internal lab + future SKU. Separate repo (`m4f-s/apollo`). Per-SKU legal gate captured in ADR-0012.
+- **NAC v0 vendor**: FreeRADIUS + 802.1X. Generic `NacConnector` trait; vendor-specific implementations layered later.
+- **Headcount**: 4–5 colleagues for Phase 1 comfortable; 2 minimum + you. ~10 from school by end of Year 2.
+- **Autonomic safety contract** ([ADR-0010](09-adr/0010-autonomic-safety.md)) and **rollback safety** ([ADR-0011](09-adr/0011-self-healing-rollback.md)) extended to cover Tier 4/5 (ADR-0013).
+
+### Open questions awaiting the project owner
+
+1. Legal review of ADR-0009 + ADR-0012 + ADR-0013 + P14 + threat model is the critical-path blocker for any P14 unlock.
+2. Compensation model (paid / unpaid / hybrid) for school colleagues — affects ADR-0008 (licensing) and CLA wording.
+3. Specific 42 Berlin contact + warm intro path (cold-email template ready in `docs/16-42-berlin-outreach.md`).
+4. Hosting / cloud-provider commitment (default proposal: GCP primary, AWS secondary; not yet ratified).
+5. Apollo opening signal: when do we authorise a red-team engineer to start the `m4f-s/apollo` repo?
+
+### What's next (priority order)
+
+1. **Project owner**: send the 42-Berlin pitch (template in `docs/16-42-berlin-outreach.md`). If they say yes, even informally, start a working channel.
+2. **Project owner**: convert legal review into a written reply on ADR-0009 / 0012 / 0013.
+3. **Project owner + tech lead**: run the kickoff checklist (`docs/21-kickoff-checklist.md`) end-to-end. If green, pull `P1-T00`.
+4. **Tech lead** (when on board): land workspace skeleton (`P1-T00`, `P1-T01`); rename CI templates to live; merge first canary CI run.
+5. **Detection author** (when on board): begin Apollo seed scenarios (`P5-T13`) part-time; doesn't block Phase 1.
+
+### Files touched
+
+- New (10): `docs/17-21`, `docs/22`, `docs/09-adr/0012`, `docs/09-adr/0013`, `.github/PULL_REQUEST_TEMPLATE.md`, `.github/CODEOWNERS`, `.github/workflows/ci.yml.tpl`, `.github/workflows/security.yml.tpl`.
+- Updated (8): `README.md`, `CLAUDE.md`, `docs/01-threat-model.md`, `docs/02-system-architecture.md`, `docs/04-detection-pillars/p14-active-defense.md`, `docs/08-roadmap.md`, `docs/12-task-backlog.md`, `docs/15-42-berlin-adaptation.md`, this file.
+- Total: 10 new + 9 updated.
+
+### Risks / things I'd flag
+
+- **Phase 7 in parallel is genuinely hard.** With 5 domain tracks (P18–P22), even at full headcount, sequencing might be safer. Defensible alternative: P18 → P21 → P19 → P22 → P20 by user-visible value. Locked in as a Phase-7 decision once we see Phase-6 throughput.
+- **Apollo timing.** Starting the Apollo repo too early dilutes Phase-1 focus. ADR-0012 lets it start in Phase 6, with seed scenarios (P5-T13) part-time before then. Resist pulling Apollo forward.
+- **NAC compatibility surprises.** FreeRADIUS reference will work; vendor-specific quirks (Cisco ISE CoA timing, UniFi controller versioning, Aruba ClearPass cluster behaviour) will require vendor-by-vendor empirical validation. Budget time per connector.
+- **42 onboarding requires DPIA effort.** The DPIA is real legal work, not a checkbox. Allocate someone with German privacy-law literacy or counsel.
+- **The hard-rules CI scan is necessary but insufficient.** It catches obvious patterns; sophisticated bypasses still possible. Backstop with code review by the tech lead on every privileged-path PR.
+
+---
+
 ## (Future sessions add entries below)
 
 > Template:

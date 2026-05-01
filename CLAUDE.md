@@ -40,6 +40,8 @@ You are working on **Artemis**, a next-generation cross-platform endpoint protec
 8. **Auto-rollback is multi-signal-gated** ([ADR-0011](docs/09-adr/0011-self-healing-rollback.md)). Auto-rollback never triggers without severity gate + multi-signal confirmation + verified backup + tenant pre-authorisation + cloud confirmation + 60-second cancel window. Mesh-elected fallback coordinators are read-only with respect to destructive actions.
 9. **Federation is Byzantine-robust.** Any change to the aggregation algorithm or contribution caps requires a new ADR.
 10. **BAS execution is sandboxed.** P17 may only run techniques from the curated library against canary scope. The mutation engine cannot synthesise novel attacks.
+11. **Apollo is a separate repo, lab-only** ([ADR-0012](docs/09-adr/0012-apollo-scope.md)). Apollo crates must NEVER appear in this Artemis workspace. CI invariant `hard-rules-scan` enforces this. Apollo's outputs reach Artemis only via the sandboxed, human-reviewed pipeline.
+12. **P14 tier ladder is explicit** ([ADR-0013](docs/09-adr/0013-active-defense-tiers.md)). Tiers 4 (NAC neutralisation) and 5 (escalate to authority) require per-scope opt-in, multi-signal confirmation, 60-second cancel window, and admin notification. NAC connectors implement the `NacConnector` trait; deny actions return reversible tokens.
 
 ## When in doubt
 

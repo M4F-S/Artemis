@@ -81,6 +81,43 @@ The campus IT team is a handful of people. They cannot triage 200 alerts a day.
 - BAS (P17) keeps coverage honest without requiring a hunter on staff.
 - A small "campus dashboard" view ranks tenants/users/projects by current risk.
 
+### F.bis Tiered Active Defense for the school network
+
+P14 ships a 6-tier severity ladder ([ADR-0013](09-adr/0013-active-defense-tiers.md)). For 42 specifically, the configuration is:
+
+```
+[Confirmed-malicious activity from a 42-network endpoint]
+      │
+      ▼
+[Tier 3 Hard contain]   — kill process; isolate host locally
+      │ + tenant policy = "neutralise on school network"
+      ▼
+[Tier 4 Network neutralisation]
+      • RADIUS deauth + 802.1X cert revoke for the device
+      • Wireless AP MAC deny (UniFi connector if applicable)
+      • Switch port shutdown if on wired
+      • Result: device cannot reach anything on the 42 network
+      │ + scope policy = "report to admin"
+      ▼
+[Tier 5 Escalate to authority]
+      • Auto-generated incident report (provenance + LLM narrative + citations)
+      • Delivered via 42's chosen channel (email DL + ticketing system)
+      • Includes: pseudonymised user identifier (admin can re-link),
+        evidence bundle, recommended next steps
+      • Tagged: campus iMac vs. student-BYOD (different remediation playbooks)
+```
+
+The default 42 configuration:
+- Tier 1–3 ON, default thresholds.
+- **Tier 4 ON** for scope `42-network`. NAC connector v0: FreeRADIUS (per [ADR-0013](09-adr/0013-active-defense-tiers.md)). UniFi connector added in Phase 7 if 42 uses UniFi APs.
+- **Tier 5 ON** for scope `42-network`. Authority chain:
+  - Routine cases → 42 IT lead (email + ticketing).
+  - Severe student-BYOD cases → 42 IT lead + dean of students.
+- Pre-authorisation: signed by 42 admin during onboarding; covered in DPIA.
+- 60-second cancel window present before Tier 4/5 actions execute (unless `tier4-no-delay` is explicitly set, which is NOT recommended for 42).
+
+Within ADR-0009 boundaries: nothing leaves 42's perimeter. Tier 4 controls 42's own network gear; Tier 5 sends a notification through 42's own admin channel. CFAA / UK CMA / EU NIS2 are not implicated.
+
 ### G. CTF / pwn culture — "evade Artemis" will become a sport
 
 Treat this as a feature, not a bug.

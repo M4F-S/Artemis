@@ -1,0 +1,38 @@
+# CODEOWNERS — placeholder until concrete contributors are named.
+# Update with handles once team is formed (per docs/18-team-and-headcount.md).
+
+# Default reviewer: tech lead.
+*                                       @tech-lead
+
+# Privileged paths require a second reviewer.
+
+# Sensors and kernel-side code.
+crates/artemis-bpf/                     @tech-lead @sensor-engineer
+crates/artemis-sensor-linux/            @tech-lead @sensor-engineer
+crates/artemis-sensor-windows/          @tech-lead @windows-specialist
+crates/artemis-sensor-macos/            @tech-lead @macos-specialist
+
+# Active Defense and Self-Healing — destructive primitives, two reviewers.
+crates/artemis-active-defense/          @tech-lead @detection-author
+crates/artemis-self-healing/            @tech-lead @sensor-engineer
+crates/artemis-nac-*/                   @tech-lead @detection-author
+
+# Autonomic loop — federation, RL, rule synthesis.
+crates/artemis-knowledge/               @tech-lead @ml-engineer
+crates/artemis-rule-synth/              @tech-lead @detection-author
+crates/artemis-bas/                     @tech-lead @detection-author
+
+# ADRs — owner reviews all architectural decisions.
+docs/09-adr/                            @owner @tech-lead
+
+# Threat model and legal-sensitive docs.
+docs/01-threat-model.md                 @owner @tech-lead
+docs/04-detection-pillars/p14-*.md      @owner @tech-lead
+docs/04-detection-pillars/p15-*.md      @owner @tech-lead
+
+# 42 Berlin track.
+docs/15-42-*.md                         @owner @42-liaison
+docs/16-42-*.md                         @owner
+
+# Apollo (separate repo, but flagged for awareness).
+docs/22-apollo-*.md                     @owner @tech-lead @red-team-engineer

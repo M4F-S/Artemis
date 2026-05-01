@@ -100,8 +100,20 @@ The autonomic-safety contract ([ADR-0010](09-adr/0010-autonomic-safety.md)) boun
 1. Detection engine emits an alert.
 2. LLM copilot generates plain-English explanation (with prompt caching).
 3. Alert + explanation appears in console; pager goes to on-call if severity ≥ HIGH.
-4. Operator clicks "contain" → Active Defense plays an approved playbook (kill process, revoke session, isolate host).
-5. P14 escalation actions (abuse report, takedown) require a second approval and are blocked unless `legal_clearance.enabled = true` for the jurisdiction.
+4. Operator (or auto-tier per ADR-0013) selects a tier; Active Defense executes the corresponding playbook.
+5. Tier 4 / 5 actions require multi-signal confirmation, 60-second cancel, and admin notification (ADR-0011 / ADR-0013).
+6. P14 third-party-touching actions (abuse report, takedown) require a second approval and are blocked unless `legal_clearance.enabled = true` for the jurisdiction.
+
+## Apollo (sister project, separate repo)
+
+`m4f-s/apollo` is the offensive testing companion ([docs/22-apollo-offensive-companion.md](04-detection-pillars/../22-apollo-offensive-companion.md), [ADR-0012](09-adr/0012-apollo-scope.md)). It is **not** part of this control plane. Apollo runs in its own lab netns, against its own target allowlist, and feeds Artemis only via:
+
+```
+[Apollo run] → result → [P16 rule synthesiser, sandboxed, human-reviewed] → 
+    → [P17 in-customer BAS technique library, sandbox-wrapped, deterministic] → tenants
+```
+
+CI invariants in this repo refuse any direct dependency on Apollo crates.
 
 ## Failure modes
 

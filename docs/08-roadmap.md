@@ -56,15 +56,19 @@ Exit criterion: design partner runs Artemis on a 50-host Linux fleet for 2 weeks
 - P12 PQ signing fully in code-update pipeline.
 - **P15 self-healing**: agent self-protection + auto-restart + Btrfs/ZFS/VSS snapshot integration.
 - **P16 self-evolving foundations**: Knowledge store + signed rule pipeline + LLM rule-synthesis review queue (rules ship through it; auto-promotion still gated by Phase 6).
+- **P14 Tier ladder (0–3) implemented**; Tier 4 NAC connector framework + `artemis-nac-freeradius` reference; Tier 5 report generator. ADR-0013 enforced in CI.
+- Apollo seed scenarios authored (part-time by detection author).
 
-## Phase 6 — Autonomic loop GA (≈ 10 weeks)
+## Phase 6 — Autonomic loop GA + Apollo Phase 1 (≈ 10 weeks)
 
 - **P15** completes: secret-rotation integrations, decentralised mesh fallback (read-only), continuous attestation reconciliation.
 - **P16** completes: online ML with Byzantine-robust federation, RL response ranker, operator-feedback FPR tuning, attack-graph mining.
 - **P17 BAS**: curated technique library + scheduled canary-host runs + gap-to-rule pipeline.
-- ADR-0010 / ADR-0011 safety contracts in production with CI invariants enforced.
+- **Apollo Phase 1**: separate repo bootstrapped (`m4f-s/apollo`); ADR-0012 enforcement live; 30-scenario library; lab-only enforcement validated by red-team review.
+- Tier-4 NAC connectors expanded: pfSense, UniFi (covering typical 42-style mixed estate).
+- ADR-0010 / ADR-0011 / ADR-0012 / ADR-0013 safety contracts in production with CI invariants enforced.
 
-Exit criterion: a tenant runs Artemis for 30 days; ≥10 incidents close with autonomic-loop assistance; zero false-rollbacks; FPR-tuning produces measurable rule-quality improvement.
+Exit criterion: a tenant runs Artemis for 30 days; ≥10 incidents close with autonomic-loop assistance; zero false-rollbacks; FPR-tuning produces measurable rule-quality improvement; Apollo lab-only enforcement passes red-team review.
 
 ## Phase 7 — Domain expansion (≈ 16 weeks)
 

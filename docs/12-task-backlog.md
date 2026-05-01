@@ -11,14 +11,16 @@ Status legend: ☐ open · ◐ in progress · ☑ done · ✗ blocked.
 | ID | Title | Owner | Est | Deps | Status |
 |---|---|---|---|---|---|
 | P0-T01 | Capture spec in repo | Claude | 1 d | — | ☑ |
-| P0-T02 | Hand legal docs (ADR-0009 + P14 + threat model) to security counsel | Project owner | external | P0-T01 | ◐ awaiting reply |
+| P0-T02 | Hand legal docs (ADR-0009 + ADR-0012 + ADR-0013 + P14 + threat model) to security counsel | Project owner | external | P0-T01 | ◐ awaiting reply |
 | P0-T03 | Identify 2 design-partner SMB candidates (1 US, 1 EU) | Project owner | 2 wk | — | ☐ |
-| P0-T04 | Recruit founding engineers / colleagues | Project owner | 2 wk | — | ☐ |
-| P0-T05 | Stand up GitHub repo, CI scaffolding (no code yet) | Any contributor | 1 d | P0-T04 | ☐ |
+| P0-T04 | Recruit founding engineers / colleagues per `docs/18-team-and-headcount.md` | Project owner | 2 wk | — | ☐ |
+| P0-T05 | Stand up GitHub repo, CI scaffolding (templates exist; rename `.tpl` to active when team formed) | Any contributor | 1 d | P0-T04 | ☐ |
 | P0-T06 | External advisor reviews threat model | External | external | P0-T01 | ☐ |
 | P0-T07 | Draft contributor CLA (link from CONTRIBUTING.md) | Project owner + counsel | 1 wk | P0-T02 | ☐ |
+| P0-T08 | Run kickoff checklist (`docs/21-kickoff-checklist.md`) end-to-end | Project owner + tech lead | 1 d | P0-T05 | ☐ |
+| P0-T09 | First contact with 42 Berlin (per `docs/16-42-berlin-outreach.md`) | Project owner | 2 wk | — | ☐ |
 
-**Phase-0 exit criteria:** P0-T02 returned, ≥1 design partner signed, ≥2 contributors lined up, CI scaffolding in place.
+**Phase-0 exit criteria:** P0-T02 returned, ≥1 design partner signed, ≥2 contributors lined up, CI scaffolding active, kickoff checklist green.
 
 ---
 
@@ -28,9 +30,10 @@ Status legend: ☐ open · ◐ in progress · ☑ done · ✗ blocked.
 
 | ID | Title | Est | Deps | Acceptance |
 |---|---|---|---|---|
-| P1-T01 | Workspace layout: `crates/artemis-core`, `crates/artemis-agentd`, `crates/artemis-bpf`, `crates/artemis-cli`, `crates/artemis-rules` | 1 d | — | `cargo build` succeeds; `cargo clippy -D warnings` clean |
-| P1-T02 | CI: lint, build, test matrix (Ubuntu 22.04 + 24.04, kernels 5.15/6.1/6.6/6.12) | 1 d | P1-T01 | green pipeline on push |
-| P1-T03 | `.github/workflows/security.yml`: cargo-audit, supply-chain SLSA build attestations | 1 d | P1-T02 | attestations published as artefacts |
+| P1-T00 | Repo bootstrap: clone, devcontainer/nix flake, branch protection, CODEOWNERS, PR template (templates already in `.github/`) | 0.5 d | P0-T08 | new contributor can `git clone` + run a passing build in < 30 minutes |
+| P1-T01 | Workspace layout per `docs/17-engineering-bootstrap.md`: `crates/artemis-core`, `crates/artemis-agentd`, `crates/artemis-bpf`, `crates/artemis-sensor-linux`, `crates/artemis-cli`, `crates/artemis-rules`, `crates/artemis-ingest`, `crates/artemis-detection` | 1 d | P1-T00 | `cargo build` succeeds; `cargo clippy -D warnings` clean |
+| P1-T02 | CI: rename `ci.yml.tpl` to `ci.yml`; verify lint, build, test matrix (Ubuntu 22.04 + 24.04, kernels 5.15/6.1/6.6/6.12) | 1 d | P1-T01 | green pipeline on push |
+| P1-T03 | Security CI: rename `security.yml.tpl`; cargo-audit, dependency-review, trufflehog, SLSA build attestations | 1 d | P1-T02 | attestations published as artefacts |
 
 ### 1.B — Linux sensor (eBPF substrate, P2)
 
@@ -154,10 +157,15 @@ Status legend: ☐ open · ◐ in progress · ☑ done · ✗ blocked.
 | P5-T06 | P15.S2 Btrfs/ZFS/VSS snapshot integration + rollback (manual approval) | Daemon eng | 7 d |
 | P5-T07 | Knowledge store skeleton (Postgres + signed manifests) | Control-plane eng | 5 d |
 | P5-T08 | LLM rule-synthesiser + human review queue | Detection author + control-plane eng | 7 d |
+| P5-T09 | P14 Tier ladder (0–3) implemented in orchestrator | Control-plane eng | 4 d |
+| P5-T10 | NacConnector trait + `artemis-nac-freeradius` reference (Tier 4) | Control-plane eng | 7 d |
+| P5-T11 | P14 Tier 5 report generator (template + delivery via email DL / webhook) | Control-plane eng + detection author | 4 d |
+| P5-T12 | ADR-0010 / ADR-0011 / ADR-0013 CI invariants (action allowlist, multi-signal gate, NAC reversibility, rate limits) | All | 3 d |
+| P5-T13 | Apollo seed scenarios (10 from Atomic Red Team / Caldera) — part-time | Detection author | 5 d |
 
 ---
 
-## Phase 6 — Autonomic loop GA (≈ 10 weeks)
+## Phase 6 — Autonomic loop GA + Apollo Phase 1 (≈ 10 weeks)
 
 | ID | Title | Owner | Est |
 |---|---|---|---|
@@ -173,9 +181,14 @@ Status legend: ☐ open · ◐ in progress · ☑ done · ✗ blocked.
 | P6-T10 | P17 BAS curated technique library v0 (20 ATT&CK techniques) | Detection author + red-team | 10 d |
 | P6-T11 | P17 BAS scheduled runner + canary scope enforcement | Control-plane eng | 5 d |
 | P6-T12 | P17 BAS gap-to-rule pipeline | Detection author | 5 d |
-| P6-T13 | ADR-0010 / ADR-0011 CI invariants (action allowlist, multi-signal gate, schema validation, federation Byzantine bound) | All | 5 d |
+| P6-T13 | Additional CI invariants for ADR-0012 / ADR-0013 (Apollo isolation, NAC reversibility, tier rate limits) | All | 5 d |
+| P6-T14 | Apollo: separate repo bootstrap (`m4f-s/apollo`); ADR-0001 (clone of ADR-0012); core scenario runtime | Red-team eng | 7 d |
+| P6-T15 | Apollo: target-allowlist enforcement (load + pre-flight + netns layers) | Red-team eng | 7 d |
+| P6-T16 | Apollo: 30-scenario library covering top ATT&CK tactics | Red-team eng + detection author | 10 d |
+| P6-T17 | Apollo → Artemis P16 gap-to-rule pipeline (sandboxed, human-reviewed) | Red-team eng + detection author | 5 d |
+| P6-T18 | NAC connectors: pfSense + UniFi (Tier 4) | Control-plane eng | 7 d |
 
-Exit criterion: 30-day tenant run; ≥10 incidents auto-assisted; zero false-rollbacks; measurable rule-quality lift.
+Exit criterion: 30-day tenant run; ≥10 incidents auto-assisted; zero false-rollbacks; measurable rule-quality lift; Apollo lab-only enforcement validated by red-team review.
 
 ---
 
