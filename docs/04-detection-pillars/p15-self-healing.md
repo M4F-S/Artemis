@@ -41,11 +41,17 @@
   - Benign update → re-baseline gold with admin sign-off.
   - Suspected tampering → freeze host, alert, queue rollback.
 
-### S5 Decentralised mesh fallback
+### S5 Graceful cloud-outage degradation
 
-- Agent-to-agent gossip on the customer's LAN over an Artemis overlay (mTLS, signed).
-- If the cloud is unreachable for > N minutes, agents elect a **read-only** local coordinator: rules continue to fire, alerts are queued, P14 inside-perimeter actions remain available; cloud-only features (LLM copilot, federated IoC) degrade gracefully.
-- Mesh is **never** used for outbound action against third parties; it is recovery-only.
+> **Scope downgraded from the original "decentralised mesh fallback" per the senior audit (`docs/29-senior-audit.md`, issue C6).** Distributed-coordinator election is genuinely Raft / Paxos territory and is deferred to a post-Phase-7 stretch goal. The Phase-1–6 deliverable is the simpler version below.
+
+- During cloud outages, agents continue applying the locally-cached rule pack and the local detection engine.
+- Events queue to the local encrypted spool (per `docs/05-data-model.md` wire-level reliability section); spool size capped per agent config.
+- Inside-perimeter P14 actions whose playbooks are locally cached (e.g. `kill process`, `isolate host`) remain available; cloud-only actions (Tier 4 NAC, Tier 5 escalate-to-authority) are unavailable until cloud connectivity returns.
+- No agent-to-agent coordination is performed in this scope. Each agent operates independently against its local cache.
+- On reconnect, agents drain the spool to ingest in event-id order; the control plane reconciles and emits any deferred alerts.
+
+The decentralised mesh + read-only coordinator election from the original spec is re-classified as a long-term R&D project.
 
 ### S6 Damage assessment + restore
 

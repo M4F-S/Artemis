@@ -26,6 +26,19 @@ Meanwhile, the threat landscape moved:
 - Compliance pressure: SOC 2, HIPAA, PCI-DSS, increasingly NIS2 / DORA in EU.
 - Buying triggers: cyber insurance renewal, customer security questionnaires, a recent breach in their vertical.
 
+## Honest framing
+
+The senior audit (`docs/29-senior-audit.md`) flagged claims that need careful framing in customer-facing material:
+
+- **eBPF-abuse detection is a Linux-only differentiator.** On Windows + macOS, Artemis matches market norms (ETW + Endpoint Security) but does not lead. Marketing must not over-generalise.
+- **Certified-robust ML** is bounded by perturbation norm + small radius — not a universal robustness guarantee. UI shows the radius numerically.
+- **Self-healing** delivers graceful degradation + secret rotation + snapshot-based rollback. The original "decentralised mesh fallback" is deferred to a post-Phase-7 stretch goal.
+- **Active Defense (P14)** ships built but disabled until per-jurisdiction legal review (ADR-0009).
+- **Apollo (offensive companion)** is lab-only at first; future commercial SKU is gated per jurisdiction (ADR-0012).
+- **Self-evolving** federation is robust within a bounded adversary fraction (ADR-0014); pauses (not "tolerates") under unbounded attacks.
+
+The senior audit is the canonical reference; this section summarises.
+
 ## Marquee positioning
 
 Artemis is **the AI-native, autonomic security platform** — both halves matter equally:

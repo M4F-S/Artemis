@@ -85,6 +85,8 @@ The product is organised around 22 capability pillars (full detail in [`docs/04-
 - [Customer lifecycle](docs/26-customer-lifecycle.md) — discovery → onboarding → steady-state → offboarding.
 - [Internal incident response](docs/27-internal-incident-response.md) — what we do when Artemis itself is the target.
 - [Versioning & compatibility](docs/28-versioning-and-compatibility.md) — semver, schema evolution, deprecation.
+- [**Senior audit**](docs/29-senior-audit.md) — independent architecture review with critical issues + remediations.
+- [Research backlog](docs/30-research-backlog.md) — improvement items tracked from the audit and the latest research.
 - [Session prompts](docs/session-prompts/) — paste-ready prompts for parallel Claude Code sessions.
 - [Sample artefacts](samples/) — `event.proto`, `control_plane.proto`, `console-api.openapi.yaml`, `cli-commands.md`, `rule.example.yaml`, `agent.toml.example`, `migrations/*.sql`.
 

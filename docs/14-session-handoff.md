@@ -344,6 +344,78 @@ Repo is now **production-ready for parallel implementation sessions** by every o
 
 ---
 
+## 2026-05-01 — Session 6 (Claude Code, opus-4-7) — Senior auditor pass
+
+### What was done
+
+Acted as a senior technical auditor / advisor. Reviewed the entire spec against the latest research and against what an experienced security architect would catch. Found **no contradictions** but **8 critical issues**, **9 important issues**, and **12 research-driven improvements**. Critical issues remediated in this commit; important + research items tracked in a new backlog.
+
+**New audit document:**
+- `docs/29-senior-audit.md` — full audit memo: what's working, 8 critical issues with severity rationale, 9 important issues, 12 research items, 9 minor inconsistencies, recommended next sequence, and a green-with-conditions verdict.
+
+**New ADRs (4) addressing the critical issues:**
+- ADR-0014 federation-security: multi-layered scheme (per-contributor magnitude bound + coordinate-wise trimmed median + validator weighting + outlier quarantine + round-key freshness + central DP) with explicit threat model and pause conditions. Supersedes the prior hand-wavy "Byzantine-robust" reference in ADR-0010.
+- ADR-0015 signing-key-management: HSM-backed root of trust, threshold signing (2-of-3 / 3-of-5), Sigstore-style transparency, annual rotation, offline root, public log. Replaces the implicit signing story.
+- ADR-0016 update-channel-security: two-party update consent, TUF metadata roles, Sigstore transparency, phased canary→stable rollout, watchdog auto-rollback, threat-model coverage. New, was missing.
+- ADR-0017 hard-rules-enforcement: layered enforcement (capability allowlist + AST analysis + two-reviewer rule + sandboxed tests + runtime self-audit) replacing grep-only as the canonical control. Per-rule enforcement matrix.
+- ADR-0018 pmf-gate: hard PMF gate at end of Phase 4 (≥3 design partners × 25 endpoints × 60 days, ≥1 paying or LOI, NPS ≥ 30, ≥80% identify essential feature). Prevents Phase 5+ feature work without market validation.
+
+**Tightened existing docs (3):**
+- P8 (cert-robust ML) — honest-framing section added; "certified" specifically means "bounded perturbation norm + small radius"; UI shows radius numerically; marketing must not abbreviate.
+- P15 (self-healing) — S5 scope downgraded from "decentralised mesh fallback" to "graceful cloud-outage degradation" (no agent-to-agent coordination). Original ambitious version moved to post-Phase-7 R&D.
+- 00-vision — added "Honest framing" section listing the bounded claims.
+
+**New research backlog:**
+- `docs/30-research-backlog.md` — 12 research items (R1–R12) covering EU CRA + AI Act + DORA, Rust-for-Linux, confidential AI inference, DSPy/LMQL, NIST AI RMF, OCSF version pin, Hypershield watch, classifier sandwiches, Constitutional AI, doc versioning, SBOM, cargo-deny — plus 9 important items (I1–I9) from the audit. Each with what / why / when / owner.
+
+### Decisions made
+
+- Federation security threat model and limits explicit (ADR-0014).
+- Signing-key model uses HSM + threshold + Sigstore transparency (ADR-0015).
+- Update channel uses TUF + transparency + phased rollout + watchdog rollback (ADR-0016).
+- Hard rules enforced at runtime + AST + review + tests + self-audit, not grep (ADR-0017).
+- PMF gate inserted between Phase 4 and Phase 5 (ADR-0018).
+- "Certified-robust ML" is qualified everywhere; UI surfaces the radius.
+- "Self-healing mesh fallback" is descoped; current spec is graceful degradation only.
+
+### What this means for Phase 1
+
+The new ADRs add concrete CI invariants that WS-A must wire in (cargo-deny config, Semgrep ruleset, capability-allowlist test, transparency-log scaffold). Tracked in WS-A's bootstrap PR. The PMF gate is calendar-distant but informs design-partner conversations from Phase 0.
+
+### Open questions (status)
+
+1. Legal review of ADR-0009 / ADR-0012 / ADR-0013 — owner waiting.
+2. ADR-0014 / ADR-0015 / ADR-0016 / ADR-0017 / ADR-0018 also benefit from counsel review; flag at next legal sync.
+3. 42 Berlin pitch — owner will send when implementation starts; ALSO: pair 42 with a *paying* EU design partner (audit issue M1).
+4. Recruitment — owner will pursue when implementation starts.
+5. Compensation, hosting, license — deferred.
+6. PMF survey vendor — to be contracted by Phase 3 (per ADR-0018).
+
+### What's next
+
+Repo is **green-with-conditions ready** for parallel implementation sessions:
+1. Owner runs `docs/21-kickoff-checklist.md`.
+2. WS-A bootstrap PR (per `docs/24-first-pr.md`) + wires in ADR-0014–0018 CI invariants.
+3. WS-B + WS-D + WS-F begin in parallel.
+4. Phase 1 includes the I7 (intent UX validation) sprint.
+5. SBOM generation in CI from PR #1 (per R11 in research backlog).
+
+### Files touched
+
+- New (6): `docs/29-senior-audit.md`, `docs/30-research-backlog.md`, `docs/09-adr/0014-federation-security.md`, `docs/09-adr/0015-signing-key-management.md`, `docs/09-adr/0016-update-channel-security.md`, `docs/09-adr/0017-hard-rules-enforcement.md`, `docs/09-adr/0018-pmf-gate.md`. (Audit doc + 5 ADRs + research backlog = 7. Counted as 6 above by mistake — actual 7.)
+- Updated (4): `docs/04-detection-pillars/p8-certified-ml.md`, `docs/04-detection-pillars/p15-self-healing.md`, `docs/00-vision.md`, `README.md`, this file.
+- Total: 7 new + 5 updated.
+
+### Risks / things I'd flag
+
+- **The audit found weaknesses; remediations add real engineering tax.** HSM + threshold signing + Sigstore + Semgrep + capability-allowlist all add operational and CI cost. Worth it; track the cost.
+- **PMF gate is psychologically hard to honour.** When Phase 4 ends and morale wants to push into Phase 5, the gate becomes pressure. Make sure the survey vendor is contracted and the conversion conversation starts at Phase 2.
+- **Honest framing is a discipline.** Marketing will pull toward unhedged claims. Keep ADR-0017's two-reviewer rule applied to customer-facing claims as well.
+- **Apollo + future SKU exposure is real.** Even though we've designed the legal/dual-use posture carefully, Wassenaar / EU 2021/821 obligations grow as the SKU launches; counsel-on-retainer (not just one-off review) is the right answer.
+- **Two safety-contract ADRs (0014 + 0015) lean heavily on threshold cryptography.** The threshold-ECDSA / threshold-ML-DSA implementations are not yet stable in the open-source Rust ecosystem; we may need to pay for a vendor (Fireblocks, etc.) or accept a single-key scheme for early phases. Track this as ad-hoc tickets, don't defer silently.
+
+---
+
 ## (Future sessions add entries below)
 
 > Template:
