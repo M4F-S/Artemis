@@ -1,0 +1,160 @@
+syntax = "proto3";
+
+// Sample (illustrative) gRPC contract for the Artemis control plane.
+// Real .proto files live in crates/artemis-core/proto/ once Phase 1 lands.
+// Committed here so contributors and Claude sessions can anchor on the
+// shape before code exists.
+
+package artemis.controlplane.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+// Reuses the event types from samples/event.proto.
+// import "artemis/event/v1/event.proto";
+
+// ---------------------------------------------------------------------------
+// EnrollmentService — agents enrol once at install time.
+// ---------------------------------------------------------------------------
+service EnrollmentService {
+  // Exchange an enrolment token + TPM quote for a device certificate.
+  // Idempotent on (tenant_id, hardware_id) — re-enrolling returns the
+  // same logical device with a fresh cert.
+  rpc Enroll(EnrollRequest) returns (EnrollResponse);
+
+  // Renew a device cert before expiry. Requires existing valid cert.
+  rpc Renew(RenewRequest) returns (RenewResponse);
+}
+
+message EnrollRequest {
+  string tenant_id = 1;
+  string enrolment_token = 2;       // single-use, 24h TTL
+  bytes  csr_pem = 3;               // device-generated CSR
+  TpmQuote tpm_quote = 4;           // optional but recommended (P9)
+  HardwareIdentity hardware_id = 5; // canonical device fingerprint
+  string agent_version = 6;
+  string profile = 7;               // dev | school | personal | managed
+}
+
+message EnrollResponse {
+  bytes device_cert_pem = 1;        // signed by Artemis CA, 1y validity
+  bytes ca_chain_pem = 2;
+  string device_id = 3;
+  google.protobuf.Timestamp issued_at = 4;
+  google.protobuf.Timestamp expires_at = 5;
+  EnrollmentDirectives directives = 6;
+}
+
+message EnrollmentDirectives {
+  string ingest_endpoint = 1;       // tenant- and region-pinned
+  string updates_endpoint = 2;
+  string knowledge_pubkey_pem = 3;  // for verifying rule packs (P12)
+  repeated string disabled_pillars = 4; // e.g. tenant excluded from P21
+}
+
+message RenewRequest {
+  bytes csr_pem = 1;                // signed via existing cert as proof-of-possession
+  string agent_version = 2;
+}
+message RenewResponse {
+  bytes device_cert_pem = 1;
+  google.protobuf.Timestamp expires_at = 2;
+}
+
+message TpmQuote {
+  bytes ek_cert_pem = 1;
+  bytes quote = 2;          // signed PCR set
+  bytes signature = 3;
+  repeated uint32 pcr_indexes = 4;
+}
+
+message HardwareIdentity {
+  string vendor = 1;
+  string product = 2;
+  string serial_hash = 3;   // hashed, not raw
+  string mac_hash = 4;      // hashed primary NIC MAC
+}
+
+// ---------------------------------------------------------------------------
+// IngestService — agents stream events.
+// ---------------------------------------------------------------------------
+service IngestService {
+  // Bidirectional stream:
+  //   client → server: batches of ArtemisEvent messages.
+  //   server → client: per-batch acks + flow-control hints + directives.
+  rpc StreamEvents(stream EventBatch) returns (stream IngestAck);
+
+  // One-shot for high-priority alerts (e.g., agent-tamper "last gasp").
+  rpc PostAlert(AlertEnvelope) returns (google.protobuf.Empty);
+}
+
+message EventBatch {
+  string batch_id = 1;              // ULID, idempotency key
+  string tenant_id = 2;
+  string device_id = 3;
+  // repeated artemis.event.v1.ArtemisEvent events = 4;
+  bytes events_serialized = 4;       // protobuf-encoded ArtemisEvent list (saves nesting)
+  uint32 dropped_since_last = 5;     // local back-pressure indicator
+}
+
+message IngestAck {
+  string batch_id = 1;
+  AckStatus status = 2;
+  // Server-suggested next interval to retry / send next batch.
+  uint32 backoff_hint_ms = 3;
+  // Optional directives the server pushes back to the agent.
+  ServerDirectives directives = 4;
+}
+
+enum AckStatus {
+  ACK_UNSPECIFIED = 0;
+  OK = 1;
+  RETRY = 2;        // transient; honour backoff_hint_ms
+  REJECT = 3;       // permanent; do not retry this batch
+  THROTTLE = 4;     // per-tenant rate-limit hit; back off
+}
+
+message ServerDirectives {
+  // Instruct the agent to fetch a new rule pack / model / config now.
+  bool refresh_knowledge = 1;
+  // Instruct the agent to apply a Tier-3 isolate immediately (operator
+  // initiated through console; payload includes signed playbook ref).
+  bytes urgent_playbook = 2;
+}
+
+message AlertEnvelope {
+  string alert_id = 1;              // ULID
+  string tenant_id = 2;
+  string device_id = 3;
+  bytes alert_payload = 4;          // protobuf ArtemisAlert
+  bytes signature = 5;
+}
+
+// ---------------------------------------------------------------------------
+// KnowledgeService — pulled by the agent on directive or schedule.
+// ---------------------------------------------------------------------------
+service KnowledgeService {
+  rpc GetCurrentManifest(google.protobuf.Empty) returns (KnowledgeManifest);
+  rpc DownloadBundle(BundleRequest) returns (stream BundleChunk);
+}
+
+message KnowledgeManifest {
+  string version = 1;               // semver
+  google.protobuf.Timestamp issued_at = 2;
+  repeated BundleRef bundles = 3;
+  bytes signature_mldsa = 4;        // ML-DSA (P12 hybrid)
+  bytes signature_ed25519 = 5;
+}
+message BundleRef {
+  string kind = 1;   // "rules" | "models" | "deception-templates" | "intent-templates" | "playbooks"
+  string id = 2;
+  string sha256 = 3;
+  uint64 size = 4;
+}
+
+message BundleRequest {
+  string bundle_id = 1;
+}
+message BundleChunk {
+  bytes data = 1;
+  bool last = 2;
+}

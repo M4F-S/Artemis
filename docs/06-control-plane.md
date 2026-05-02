@@ -60,23 +60,43 @@ federated-ioc-aggregator ──┐                  active-defense-orchestrator
 
 ## Multi-tenant rate limits
 
-- Ingest: per-tenant tokens-per-second, configurable.
-- Detection engine: per-tenant CPU / memory budget; isolation prevents one noisy tenant degrading others.
-- LLM copilot: per-tenant per-month token budget; degrades to template explanations when exceeded.
+Concrete defaults per tenant tier (override per-tenant in admin console):
+
+| Tier | Events/sec | LLM tokens/mo | NAC actions/5min | Tier-5 reports/day |
+|---|---|---|---|---|
+| Trial | 5,000 | 50,000 | 1 | 5 |
+| Standard | 20,000 | 500,000 | 3 | 25 |
+| Plus | 50,000 | 2,000,000 | 5 | 50 |
+| MDR | 100,000 | 5,000,000 | 10 | 100 |
+
+Mechanism:
+- Token-bucket per tenant per service.
+- `THROTTLE` ack returned to ingest when bucket empty (per `samples/control_plane.proto`).
+- Detection engine isolates per-tenant CPU / memory budget via cgroups (one tenant cannot starve another).
+- LLM copilot per-tenant per-month token budget; degrades to template explanations when exceeded.
 
 ## Internal observability
 
-- All control-plane services emit OTLP to a separate Artemis-internal observability stack (NOT customer's data).
+- All control-plane services emit OTLP traces + metrics + structured logs to a separate Artemis-internal observability stack (NOT customer's data).
+- Stack: Grafana + Tempo (traces) + Mimir (metrics) + Loki (logs) on the same K8s cluster, isolated namespace.
 - SLOs:
-  - Ingest p99 < 500 ms
-  - Alert p99 < 60 s end-to-end
-  - Console TTI < 2.5 s
-- Error budget policy: violations in 30-day window pause feature releases.
+  - Ingest p99 < 500 ms.
+  - Alert end-to-end p99 < 60 s.
+  - Console TTI < 2.5 s.
+  - LLM copilot p99 < 8 s; cached p99 < 1 s.
+  - Knowledge-bundle pull p99 < 5 s.
+  - NAC action dispatch p99 < 2 s.
+- Error-budget policy: SLO violations in 30-day window pause feature releases; only bug fixes ship until budget restored.
+- Distributed tracing: every request from agent → ingest → detection → alert-router → console carries a trace ID; trace propagation via OpenTelemetry baggage.
+- We use Artemis on Artemis: deploy our own agent on staff laptops + control-plane infrastructure (per `docs/27-internal-incident-response.md`).
+- Internal alerts (the kind we don't sell — e.g. "Kafka lag > 1 min") go to PagerDuty for the on-call.
 
 ## Disaster recovery
 
 - Per-region active/passive within cloud; per-tenant config and rule state replicated to a passive region.
 - RTO 1 h for control plane; RPO 5 min for state, 0 for raw blobs (BYOK customer-owned).
+- Quarterly DR drill: controlled outage of primary region; passive region picks up traffic; runbook in `ops/dr/` (created in Phase 5 ops work).
+- Annual signing-key recovery drill (per `docs/27-internal-incident-response.md`).
 
 ## Vendor lock-in mitigation
 

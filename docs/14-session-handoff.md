@@ -269,6 +269,81 @@ Subsequent sessions inherit context via this handoff log; no oral history needed
 
 ---
 
+## 2026-05-01 — Session 5 (Claude Code, opus-4-7) — Second-pass gap fix
+
+### What was done
+
+Owner-requested second review of the entire repo for vagueness, missing technical detail, and contradictions. Found 8 real implementation gaps (no contradictions in the spec); fixed all.
+
+**New samples (5 files):**
+- `samples/control_plane.proto` — gRPC service definitions: `EnrollmentService`, `IngestService` (bidirectional stream + `IngestAck` with `OK`/`RETRY`/`REJECT`/`THROTTLE` and `backoff_hint_ms`), `KnowledgeService` (signed manifest + chunked download). Was missing entirely.
+- `samples/migrations/postgres_001_init.sql` — illustrative per-tenant Postgres schema: `devices`, `admins`, `authority_chains`, `active_defense_policy`, `intent_sessions`, `identity_sources`, `audit_log` (hash-chained), `knowledge_pins`, `honeytoken_hits`. Per ADR-0006 (schema-per-tenant).
+- `samples/migrations/clickhouse_001_init.sql` — illustrative per-tenant ClickHouse schema: `events` table with TTL + cold-tier storage, materialised view, `alerts`, `bas_runs`, `federation_ledger`. Per ADR-0006 (DB-per-tenant).
+- `samples/cli-commands.md` — `artemis` CLI command surface contract (status, enroll, intent, rules, alerts, decoy, ad, doctor, version) with exit-code semantics. Was missing.
+- `samples/console-api.openapi.yaml` — REST API surface for the console: alerts, incidents, devices, identities, rules (incl. proposed rules from P16 LLM synthesiser), active-defense policy, reporting, federation. Was missing.
+
+**New docs (3 files):**
+- `docs/26-customer-lifecycle.md` — Discovery → trial → onboarding → steady-state → change events → offboarding. Concrete day-by-day plan, exit criteria, GDPR right-to-erasure handling, signed offboarding receipt.
+- `docs/27-internal-incident-response.md` — What we do when Artemis itself is the target. SEV classes, on-call structure, response phases, signing-key compromise + cross-tenant leak + Apollo compromise runbooks, customer comms matrix, drills, hard rules.
+- `docs/28-versioning-and-compatibility.md` — SemVer; agent↔control-plane N–2 compat with 90-day deprecation; knowledge bundle versioning + pinning; event/alert/provenance/Postgres/ClickHouse schema-evolution rules; expand-contract migration pattern.
+
+**Tightened existing docs (4 files):**
+- `docs/05-data-model.md` — added Time/ordering/clock-skew section (sensor `ts` + control-plane `ingest_ts`, hash-chained per-device sequence, Lamport-style cross-device ordering, drift-detect events). Added schema-evolution protocol summary linking to doc 28. Added Wire-level reliability section (gRPC retry/backoff base 250ms cap 60s, idempotency via `batch_id`, encrypted SQLite spool with overflow handling, backpressure on `THROTTLE`). Added Federation participation contract.
+- `docs/06-control-plane.md` — replaced vague rate-limit paragraph with a concrete per-tier table (Trial/Standard/Plus/MDR with events/sec, LLM tokens/mo, NAC actions/5min, Tier-5 reports/day). Expanded internal observability (Tempo+Mimir+Loki stack, SLO list with 6 targets, distributed tracing via OTel baggage, "we use Artemis on Artemis"). Expanded DR with quarterly drill cadence + annual signing-key recovery drill.
+- `docs/25-dev-runbook.md` — fixed missing `cp samples/agent.toml.example dev/agent.toml` step.
+- `README.md` — links the new docs (26, 27, 28) and updated samples list.
+
+### Audit confirmed (no action needed)
+
+- Phase timeline consistent across `08-roadmap.md` and `12-task-backlog.md` (10/8/8/8/8/10/16 weeks).
+- LLM provider strategy consistent: Anthropic primary in P5 doc and ADR-0005.
+- All 22 pillars referenced in roadmap + backlog.
+- All 13 ADRs present and consistent.
+- Cross-link sanity confirmed manually (the "broken link" auto-checker false-positives because relative paths from `docs/04-detection-pillars/` resolve correctly).
+
+### Decisions made (this session)
+
+- Concrete rate-limit numbers per tenant tier locked in `docs/06-control-plane.md`.
+- Wire-level reliability contract locked in `docs/05-data-model.md` (retry policy, spool behaviour, idempotency).
+- Time/clock model locked: dual-timestamp + hash-chain sequence + Lamport-style cross-device.
+- Customer lifecycle stages and offboarding receipt format locked in `docs/26-customer-lifecycle.md`.
+- Internal IR structure (SEV classes + on-call escalation) locked in `docs/27-internal-incident-response.md`.
+- SemVer + schema-evolution rules + 90-day deprecation cycle locked in `docs/28-versioning-and-compatibility.md`.
+
+### Open questions (unchanged from session 4)
+
+1. Legal review of ADR-0009 / ADR-0012 / ADR-0013 + P14 + threat model — owner waiting.
+2. 42 Berlin pitch — owner will send when implementation starts.
+3. Recruitment — owner will pursue when implementation starts.
+4. Compensation model — deferred.
+5. Hosting / cloud-provider commitment — deferred.
+6. License decision (ADR-0008) — deferred to end of Phase 1.
+
+### What's next
+
+Repo is now **production-ready for parallel implementation sessions** by every objective gate I can think of. When the owner signals "go":
+
+1. Owner runs `docs/21-kickoff-checklist.md`.
+2. Owner pastes `docs/session-prompts/ws-a-tech-lead.md` into a Claude Code session.
+3. WS-A produces the bootstrap PR per `docs/24-first-pr.md` (using contracts in `samples/` as anchors).
+4. Then WS-B + WS-D + WS-F open in parallel.
+
+### Files touched
+
+- New (8): `samples/control_plane.proto`, `samples/migrations/postgres_001_init.sql`, `samples/migrations/clickhouse_001_init.sql`, `samples/cli-commands.md`, `samples/console-api.openapi.yaml`, `docs/26-customer-lifecycle.md`, `docs/27-internal-incident-response.md`, `docs/28-versioning-and-compatibility.md`.
+- Updated (5): `docs/05-data-model.md`, `docs/06-control-plane.md`, `docs/25-dev-runbook.md`, `README.md`, this file.
+- Total: 8 new + 5 updated.
+
+### Risks / things I'd flag
+
+- **Sample artefacts grow.** Be disciplined: `samples/` is a design-anchor showcase, not a lib. The corresponding workstream re-creates them inside its crate; the samples themselves never get imported.
+- **Schema-evolution discipline is a culture thing.** The protocol is documented; whether the team follows it depends on tech-lead enforcement during reviews.
+- **Internal-IR runbooks need real practice, not just docs.** Tabletop exercise quarterly is a hard rule in `docs/27-internal-incident-response.md`; first one should be Phase 5 ops work.
+- **Versioning doc commits us to N–2 compatibility.** That is a real engineering tax. Worth it for customer trust; track the cost.
+- **Tier-rate-limit numbers in `docs/06-control-plane.md` are guesses.** Re-tune from production telemetry after Phase 1 design-partner exposure.
+
+---
+
 ## (Future sessions add entries below)
 
 > Template:

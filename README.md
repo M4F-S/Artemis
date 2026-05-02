@@ -82,8 +82,11 @@ The product is organised around 22 capability pillars (full detail in [`docs/04-
 - [Parallel implementation sessions](docs/23-parallel-sessions.md) — workstreams WS-A–H, branch protocol, file ownership.
 - [The first PR](docs/24-first-pr.md) — concrete bootstrap PR scope.
 - [Local dev runbook](docs/25-dev-runbook.md) — clone → running agent.
+- [Customer lifecycle](docs/26-customer-lifecycle.md) — discovery → onboarding → steady-state → offboarding.
+- [Internal incident response](docs/27-internal-incident-response.md) — what we do when Artemis itself is the target.
+- [Versioning & compatibility](docs/28-versioning-and-compatibility.md) — semver, schema evolution, deprecation.
 - [Session prompts](docs/session-prompts/) — paste-ready prompts for parallel Claude Code sessions.
-- [Sample artefacts](samples/) — `event.proto`, `rule.example.yaml`, `agent.toml.example`.
+- [Sample artefacts](samples/) — `event.proto`, `control_plane.proto`, `console-api.openapi.yaml`, `cli-commands.md`, `rule.example.yaml`, `agent.toml.example`, `migrations/*.sql`.
 
 ## License
 

@@ -53,11 +53,14 @@ cargo build --workspace
 ## Running the daemon locally (Phase 1+)
 
 ```bash
+# one-time: copy the sample dev config into place
+cp samples/agent.toml.example dev/agent.toml
+
 cargo build -p artemis-agentd --release
 sudo ./target/release/artemis-agentd --config dev/agent.toml
 ```
 
-`dev/agent.toml` (provided in repo; see `samples/agent.toml.example`) points the daemon at:
+The dev `agent.toml` (provided in `samples/agent.toml.example`) points the daemon at:
 - An ingest stub on `localhost:4317` (start it separately, see below).
 - mTLS disabled in dev mode.
 - Rules loaded from `rules/pack-v0/`.

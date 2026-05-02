@@ -1,0 +1,163 @@
+openapi: 3.1.0
+info:
+  title: Artemis Console API
+  version: 0.1.0
+  description: |
+    Sample (illustrative) REST API consumed by the Artemis console (Next.js) and
+    by SIEM integrations (Splunk / Sentinel / Elastic). Real spec lives in
+    crates/artemis-ingest/openapi.yaml once Phase 1 lands.
+
+    All endpoints require:
+      - mTLS for agent paths (handled by IngestService gRPC; not in this REST surface).
+      - OIDC bearer token (Entra/Okta/Google) for admin paths.
+
+    Multi-tenancy: tenant inferred from the OIDC token; cross-tenant access is
+    refused at the gateway.
+
+servers:
+  - url: https://api.{region}.artemis.example
+    variables:
+      region:
+        default: eu-west-1
+        enum: [us-east-1, us-west-2, eu-west-1, ap-south-1]
+
+security:
+  - oauth2: [admin, viewer]
+
+tags:
+  - name: alerts
+  - name: incidents
+  - name: devices
+  - name: identities
+  - name: rules
+  - name: knowledge
+  - name: active-defense
+  - name: reporting
+  - name: federation
+
+paths:
+  /v1/alerts:
+    get:
+      tags: [alerts]
+      summary: List alerts
+      parameters:
+        - { in: query, name: since,    schema: { type: string, format: duration }, description: "e.g., 24h" }
+        - { in: query, name: severity, schema: { type: string, enum: [INFO,LOW,MEDIUM,HIGH,CRITICAL] } }
+        - { in: query, name: status,   schema: { type: string, enum: [OPEN,TRIAGED,CONTAINED,CLOSED] } }
+        - { in: query, name: device_id, schema: { type: string } }
+        - { in: query, name: cursor,   schema: { type: string }, description: "opaque cursor for pagination" }
+      responses:
+        '200': { description: "page of alerts" }
+
+  /v1/alerts/{alert_id}:
+    get:
+      tags: [alerts]
+      parameters: [ { in: path, name: alert_id, required: true, schema: { type: string } } ]
+      responses: { '200': { description: alert detail } }
+
+  /v1/alerts/{alert_id}/provenance:
+    get:
+      tags: [alerts]
+      summary: Provenance subgraph for the alert
+      parameters: [ { in: path, name: alert_id, required: true, schema: { type: string } } ]
+      responses: { '200': { description: "Memgraph-flavoured subgraph" } }
+
+  /v1/alerts/{alert_id}/narrative:
+    get:
+      tags: [alerts]
+      summary: LLM SOC-copilot narrative (cached)
+      parameters: [ { in: path, name: alert_id, required: true, schema: { type: string } } ]
+      responses: { '200': { description: narrative + citations } }
+
+  /v1/incidents:
+    get:
+      tags: [incidents]
+      summary: List incidents (clusters of related alerts)
+    post:
+      tags: [incidents]
+      summary: Manually create an incident from one or more alerts
+
+  /v1/incidents/{incident_id}/timeline:
+    get: { tags: [incidents] }
+
+  /v1/incidents/{incident_id}/contain:
+    post:
+      tags: [incidents]
+      summary: Trigger an Active-Defense playbook
+      description: |
+        Body specifies tier (0–5) and playbook ID. Tier 4/5 triggers the
+        multi-signal + dual-control + 60-second cancel window per ADR-0011/ADR-0013.
+        Action returns an action_id that can be cancelled within the window via
+        DELETE /v1/incidents/{id}/actions/{action_id}.
+
+  /v1/incidents/{incident_id}/actions/{action_id}:
+    delete:
+      tags: [incidents]
+      summary: Cancel a pending tiered action within its cancel window.
+
+  /v1/devices:
+    get: { tags: [devices], summary: "List enrolled devices" }
+  /v1/devices/{device_id}:
+    get: { tags: [devices] }
+  /v1/devices/{device_id}/quarantine:
+    post: { tags: [devices], summary: "Hard-isolate a device (Tier 3)" }
+  /v1/devices/{device_id}/release:
+    post: { tags: [devices], summary: "Release a quarantined device" }
+
+  /v1/identities:
+    get: { tags: [identities], summary: "ITDR-fused identity inventory (P10)" }
+
+  /v1/rules:
+    get: { tags: [rules] }
+  /v1/rules/{rule_id}:
+    get: { tags: [rules] }
+  /v1/rules/{rule_id}/test:
+    post: { tags: [rules], summary: "Dry-run rule against a synthetic event" }
+  /v1/rules/proposed:
+    get:
+      tags: [rules]
+      summary: Pending proposals from the LLM rule synthesiser (P16)
+    description: "Authored items in the review queue; an admin approves or rejects."
+  /v1/rules/proposed/{proposal_id}:
+    post:
+      tags: [rules]
+      summary: Approve or reject a proposed rule
+      description: |
+        Body { decision: "approve"|"reject", rationale: "…" }.
+        On approve, rule signed and added to the next Knowledge bundle.
+
+  /v1/knowledge/manifest:
+    get: { tags: [knowledge], summary: "Current knowledge-bundle manifest (signed, see ADR-0010)" }
+
+  /v1/active-defense/policy:
+    get:  { tags: [active-defense] }
+    put:  { tags: [active-defense], summary: "Update tier policy / NAC connector / authority chain" }
+  /v1/active-defense/audit:
+    get: { tags: [active-defense], summary: "Append-only audit log slice" }
+
+  /v1/reporting/dashboard:
+    get: { tags: [reporting] }
+  /v1/reporting/exec-pdf:
+    post: { tags: [reporting], summary: "Generate weekly/monthly executive PDF (async)" }
+  /v1/reporting/compliance/{framework}:
+    get:
+      tags: [reporting]
+      summary: Compliance evidence bundle (SOC2 | ISO27001 | HIPAA | NIS2 | DORA)
+      parameters: [{ in: path, name: framework, required: true, schema: { type: string } }]
+
+  /v1/federation/contributions:
+    get: { tags: [federation], summary: "This tenant's federation contributions (per-round)" }
+  /v1/federation/opt:
+    put: { tags: [federation], summary: "Opt in / out of federated learning" }
+
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://login.{region}.artemis.example/oidc/authorize
+          tokenUrl:        https://login.{region}.artemis.example/oidc/token
+          scopes:
+            admin:  "Full read/write within tenant"
+            viewer: "Read-only within tenant"
