@@ -191,6 +191,84 @@ Format: dated heading + what was done + what's next + open questions.
 
 ---
 
+## 2026-05-01 — Session 4 (Claude Code, opus-4-7) — Implementation-readiness audit
+
+### What was done
+
+End-to-end audit of the repo (65 files including this entry's adds), verified pillar-vs-roadmap-vs-backlog cross-coverage, ADR completeness, and cross-link sanity. Found and fixed gaps blocking parallel implementation sessions:
+
+- **`docs/23-parallel-sessions.md`** — full workstream protocol: 8 streams (WS-A through WS-H), file ownership rules, dependency graph, branching protocol, daily handoff template, coordinator playbook references.
+- **`docs/24-first-pr.md`** — concrete WS-A bootstrap PR scope: every file added, CI gates that must pass, acceptance checklist, what unblocks downstream.
+- **`docs/25-dev-runbook.md`** — clone → running agent in three paths (devcontainer, nix flake, manual); end-to-end verification steps; common-issues table.
+- **`samples/`** — concrete reference artefacts for the first PR:
+  - `samples/event.proto` — OTLP-shaped event schema with example payloads.
+  - `samples/rule.example.yaml` — the eBPF-untrusted-loader rule with positive + negative tests.
+  - `samples/agent.toml.example` — full dev-profile agent config.
+- **`docs/session-prompts/`** — paste-ready prompts for parallel Claude Code sessions:
+  - `ws-a-tech-lead.md`
+  - `ws-b-sensor-linux.md`
+  - `ws-c-daemon-rules.md`
+  - `ws-d-control-plane.md`
+  - `ws-e-console.md`
+  - `ws-f-detection.md`
+  - `ws-g-llm-malware.md`
+  - `ws-h-hardening.md`
+  - `coordinator-playbook.md` (for the human owner; not pasted into a session).
+- **`docs/10-glossary.md`** — extended with all terms introduced in sessions 2–4 (Apollo, NAC, NacConnector, MAPE-K, T6, Tier 0–5, RuleGenie/RulePilot, JA4, EAP-TLS, ML-DSA, SLH-DSA, ATLAS, BAS, NDR, CWPP, DFIR, DPIA, RL, SLSA, Caldera, EU Dual-Use Regulation 2021/821, Wassenaar, WS-A…H, 802.1X, RADIUS).
+- **`README.md`** — links the new docs (23, 24, 25, session-prompts, samples).
+- **`CLAUDE.md`** — references the parallel-session protocol so any future session knows the file-ownership and branch rules.
+
+### Audit findings (no further action required)
+
+- All 22 pillars referenced in both roadmap and task-backlog.
+- All 13 ADRs present, consistent.
+- No orphaned cross-links (false positives in the auto-checker; manual sample-check confirms).
+- Hard-rules CI invariants documented and ready to activate when CI templates are renamed live.
+- File-ownership rules cleanly separate the workstreams; the only natural coupling point is the shared event schema (handled by an explicit schema-evolution protocol).
+
+### Decisions made (this session)
+
+- Phase 1 is divided into 8 parallel workstreams, with WS-A as the only hard precondition.
+- Eight session-prompt files are the durable artefacts that let the owner spin up parallel Claude Code sessions confidently.
+- The shared event schema is the chief coordination artefact; changes to it follow an explicit cross-stream protocol.
+
+### Open questions awaiting the project owner (status snapshot)
+
+1. Legal review of ADR-0009 + ADR-0012 + ADR-0013 + P14 + threat model — *waiting (owner-noted)*.
+2. 42 Berlin pitch — *owner will send when ready (owner-noted)*.
+3. Recruitment — *owner will pursue when implementation starts (owner-noted)*.
+4. Compensation model — *deferred*.
+5. Hosting / cloud-provider commitment — *deferred*.
+6. License decision (ADR-0008) — *deferred to end of Phase 1*.
+
+### What's next
+
+This session's deliverable concludes the spec stage. The repo is **implementation-ready**.
+
+When the owner signals "go", the very first action is to run the Phase-1 kickoff:
+1. Owner runs `docs/21-kickoff-checklist.md` end-to-end.
+2. Owner pastes `docs/session-prompts/ws-a-tech-lead.md` into a Claude Code session.
+3. WS-A produces the bootstrap PR per `docs/24-first-pr.md`.
+4. Once merged, owner spins WS-B, WS-D, and WS-F in parallel using their prompts.
+5. Coordinator playbook (`docs/session-prompts/coordinator-playbook.md`) drives the daily cadence.
+
+Subsequent sessions inherit context via this handoff log; no oral history needed.
+
+### Files touched
+
+- New (15): `docs/23-25` (3), `samples/event.proto`, `samples/rule.example.yaml`, `samples/agent.toml.example`, `docs/session-prompts/{ws-a..h, coordinator-playbook}.md` (9).
+- Updated (3): `README.md`, `CLAUDE.md`, `docs/10-glossary.md`, this file.
+- Total: 15 new + 4 updated.
+
+### Risks / things I'd flag
+
+- **Coordination overhead is real.** Parallel sessions amplify both throughput and risk. Run 2–3 in parallel before scaling to 5+; tune the cadence as you go.
+- **Tired coordination is dangerous.** When in doubt, pause sessions rather than guess; the cost of pause is minutes; the cost of bad merge is days.
+- **The sample artefacts in `samples/` are illustrative, not production.** Do not import them into crates verbatim; treat them as design anchors that the corresponding session re-creates inside the proper crate.
+- **Shared event-schema discipline is critical.** A single careless mutation will cascade across WS-B, WS-C, WS-D. The schema-evolution protocol (in WS-C and WS-B prompts) must be followed.
+
+---
+
 ## (Future sessions add entries below)
 
 > Template:

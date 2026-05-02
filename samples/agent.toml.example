@@ -1,0 +1,92 @@
+# Sample Artemis agent configuration (dev profile).
+# Real config schema lives in crates/artemis-agentd/schemas/config.schema.json
+# once Phase 1 lands. Copy this file to dev/agent.toml to use locally.
+
+[agent]
+# Tenant identifier (dev mode uses a fixed local tenant).
+tenant_id = "dev-local"
+# Device identifier (overridden in production by enrolment cert subject).
+device_id = "dev-host-001"
+# Profile: "dev" | "school" | "personal" | "managed".
+# In production, set during enrolment.
+profile = "dev"
+
+[ingest]
+# OTLP gRPC endpoint of the control-plane ingest service.
+endpoint = "https://localhost:4317"
+# In dev mode mTLS may be disabled. Production agents always require mTLS.
+mtls_enabled = false
+# Optional CA pin (control-plane CA fingerprint, hex).
+# ca_fingerprint = ""
+# Path to the agent's device cert + key. Required when mtls_enabled = true.
+# cert_path = "/etc/artemis/cert.pem"
+# key_path  = "/etc/artemis/key.pem"
+
+[spool]
+# Local on-disk encrypted spool used when ingest is unreachable.
+path = "./spool"
+# Maximum spool size; events drop oldest-first when exceeded.
+max_size_mb = 200
+
+[sensors.linux]
+enabled = true
+# LSM hooks to attach. Defaults are conservative for dev.
+hooks = [
+  "bpf",
+  "bprm_check_security",
+  "file_open",
+  "socket_connect",
+]
+# Path containing CO-RE BTF data (auto-detected if blank).
+btf_path = ""
+
+[sensors.deception]
+# Place per-host canary files; tripwires fire on access.
+enabled = true
+# Templates control which canaries get placed on this host.
+templates = ["aws-creds", "ssh-key", "kubeconfig", "passwords-doc"]
+
+[intent]
+# Default intent when none is declared.
+default = "idle"
+# Path containing user-declared intent state.
+state_path = "./var/intent.signed"
+
+[rules]
+# Path to compiled rule packs (loaded at start; reloaded on SIGHUP).
+pack_paths = ["./rules/pack-v0"]
+
+[ml]
+# Optional local ML scorer (ONNX). Disabled in early Phase 1.
+enabled = false
+# model_path = "./models/scorer-v0.onnx"
+
+[telemetry]
+# Differential-privacy budget for egress (per-user, per-day).
+# See docs/09-adr/0007-dp-parameters.md for the full table.
+dp_epsilon_per_day = 3.6
+# Categories that bypass DP (security-critical alerts).
+dp_bypass_categories = [
+  "kernel.bpf-load",
+  "file.canary-touch",
+  "incident",
+]
+
+[active_defense]
+# P14 starts disabled; tenant admin opts in per tier.
+# See docs/09-adr/0013-active-defense-tiers.md.
+enabled = false
+# tiers_enabled = [0, 1, 2, 3]   # uncomment when admin opts in
+# nac_connector = "freeradius"   # one of: freeradius | pfsense | unifi | cisco-ise | aruba-clearpass | meraki
+
+[self_healing]
+# P15 watchdog and snapshot-rollback. Off by default in dev.
+# See docs/09-adr/0011-self-healing-rollback.md.
+auto_rollback_enabled = false
+# auto_rollback_profile = "ransomware-only"   # uncomment when admin opts in
+
+[logging]
+# RUST_LOG-style filter.
+level = "info,artemis=debug"
+# Log destination: "stderr" | "journald" | "file:/var/log/artemis.log".
+sink = "stderr"

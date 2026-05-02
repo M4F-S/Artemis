@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+// Sample (illustrative) event schema for Artemis.
+// Real schema lives in crates/artemis-core/proto/event.proto once Phase 1 lands.
+// This file is for documentation: showing the shape so contributors can reason
+// about the wire format before any code exists.
+
+package artemis.event.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+
+// One sensor-emitted event. Conformant subset of OpenTelemetry Logs.
+message ArtemisEvent {
+  // Tenant identifier (pseudonymous, ULID).
+  string tenant_id = 1;
+
+  // Device identifier (subject CN of device cert).
+  string device_id = 2;
+
+  // Per-tenant pseudonymous user identifier.
+  string user_pseudonym = 3;
+
+  // Event timestamp, sensor-side clock.
+  google.protobuf.Timestamp ts = 4;
+
+  // Top-level taxonomy: "process" | "file" | "net" | "auth" | "kernel" | "browser" | "agent" | "incident".
+  string category = 5;
+
+  // Sub-type within category, e.g. "exec" for process / "open" for file.
+  string subtype = 6;
+
+  // Category-specific structured payload (see `data` examples below).
+  google.protobuf.Struct data = 7;
+
+  // Parent event ID (chain support for derived events).
+  string parent_event_id = 8;
+
+  // Unique event ID (ULID, monotonic).
+  string event_id = 9;
+
+  // Severity assigned at the sensor or daemon layer.
+  Severity severity = 10;
+
+  // Free-form tags (e.g., ATT&CK technique IDs).
+  repeated string tags = 11;
+
+  // Local hash-chain signature (chain links each event to the previous in the same device).
+  bytes sig = 12;
+}
+
+enum Severity {
+  SEVERITY_UNSPECIFIED = 0;
+  INFO = 1;
+  LOW = 2;
+  MEDIUM = 3;
+  HIGH = 4;
+  CRITICAL = 5;
+}
+
+// Example payloads (informal — real payloads are validated against
+// JSON schemas in crates/artemis-core/schemas/).
+//
+// process.exec data:
+//   { "pid": 18324, "ppid": 18301, "exe": "/usr/bin/curl",
+//     "exe_sha256": "a1b2…",
+//     "cmdline_redacted": "curl -sSL <url>",
+//     "uid": 1000, "container_id": null,
+//     "cfi": {"cet": false, "pac": false, "fortify": true},
+//     "intent": {"current": "code:repo=acme/api", "in_scope": true} }
+//
+// file.canary-touch data:
+//   { "path_redacted": "<HOME>/.aws/credentials",
+//     "canary_id": "ay7-pq2",
+//     "process": {"pid": 18324, "exe": "/usr/bin/cat"} }
+//
+// kernel.bpf-load data:
+//   { "loader_pid": 200,
+//     "loader_exe": "/usr/sbin/bpftool",
+//     "loader_sha256": "…",
+//     "prog_type": "BPF_PROG_TYPE_KPROBE",
+//     "license_string": "GPL",
+//     "helpers_referenced": ["bpf_probe_read", "bpf_get_current_task"] }

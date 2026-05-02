@@ -79,6 +79,11 @@ The product is organised around 22 capability pillars (full detail in [`docs/04-
 - [Definition of Done](docs/20-definition-of-done.md) — observable exit criteria per phase.
 - [Kickoff checklist](docs/21-kickoff-checklist.md) — single-page gate before first commit.
 - [Apollo (offensive testing companion)](docs/22-apollo-offensive-companion.md) — sister project; lab-only (per [ADR-0012](docs/09-adr/0012-apollo-scope.md)).
+- [Parallel implementation sessions](docs/23-parallel-sessions.md) — workstreams WS-A–H, branch protocol, file ownership.
+- [The first PR](docs/24-first-pr.md) — concrete bootstrap PR scope.
+- [Local dev runbook](docs/25-dev-runbook.md) — clone → running agent.
+- [Session prompts](docs/session-prompts/) — paste-ready prompts for parallel Claude Code sessions.
+- [Sample artefacts](samples/) — `event.proto`, `rule.example.yaml`, `agent.toml.example`.
 
 ## License
 

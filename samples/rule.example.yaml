@@ -1,0 +1,99 @@
+# Sample Artemis detection rule.
+#
+# Format borrows the Falco YAML conventions. Real rules are validated against
+# crates/artemis-rules/schemas/rule.schema.json once Phase 1 lands.
+#
+# This file is illustrative — committed for contributors and Claude sessions
+# to anchor on a concrete shape before code exists.
+
+rule:
+  id: linux.bpf.untrusted-loader
+  version: 1
+  title: "eBPF program loaded by an untrusted process"
+  description: |
+    Detects `bpf()` syscall (BPF_PROG_LOAD) by a process not on the allowlist
+    of legitimate eBPF loaders. Catches in-kernel rootkits like BPFDoor and
+    similar evasions that mainstream Linux AVs miss.
+  pillar: P2
+  attck:
+    - T1014   # Rootkit
+    - T1620   # Reflective Code Loading
+
+  # Matchers run against ArtemisEvent (see samples/event.proto).
+  match:
+    all:
+      - category: kernel
+      - subtype: bpf-load
+      - data.loader_exe:
+          not_in:
+            - /usr/sbin/bpftool
+            - /usr/bin/bcc-tools/*
+            - /usr/local/bin/cilium-agent
+            - /snap/microk8s/*/bin/bpftool
+
+  # Severity escalation when red-flag helpers are referenced.
+  amplifiers:
+    - condition:
+        any:
+          - data.helpers_referenced.contains: bpf_probe_write_user
+          - data.helpers_referenced.contains: bpf_override_return
+          - data.helpers_referenced.contains: bpf_send_signal
+      severity: CRITICAL
+      tag: red-flag-helper
+
+  # Default severity if no amplifier matches.
+  severity: HIGH
+
+  # Suggested tier for the Active Defense orchestrator (P14, ADR-0013).
+  # The orchestrator decides whether to actually act; this is a hint.
+  suggested_tier: 3
+
+  # Test cases the rule MUST satisfy. CI runs these on every PR.
+  tests:
+    positive:
+      # An untrusted loader loading a kprobe.
+      - event:
+          category: kernel
+          subtype: bpf-load
+          data:
+            loader_exe: /tmp/random-loader
+            prog_type: BPF_PROG_TYPE_KPROBE
+            license_string: GPL
+            helpers_referenced: [bpf_probe_read]
+        expected:
+          fires: true
+          severity: HIGH
+
+      # Untrusted loader using a red-flag helper -> CRITICAL.
+      - event:
+          category: kernel
+          subtype: bpf-load
+          data:
+            loader_exe: /tmp/random-loader
+            prog_type: BPF_PROG_TYPE_KPROBE
+            license_string: GPL
+            helpers_referenced: [bpf_probe_write_user]
+        expected:
+          fires: true
+          severity: CRITICAL
+
+    negative:
+      # Trusted loader -> no alert.
+      - event:
+          category: kernel
+          subtype: bpf-load
+          data:
+            loader_exe: /usr/sbin/bpftool
+            prog_type: BPF_PROG_TYPE_KPROBE
+            license_string: GPL
+            helpers_referenced: [bpf_probe_read]
+        expected:
+          fires: false
+
+  # Provenance: who authored, when, why.
+  meta:
+    authored_by: artemis-team
+    authored_at: 2026-05-01
+    references:
+      - https://www.intezer.com/blog/research/new-backdoor-bpfdoor/
+      - https://docs.kernel.org/bpf/

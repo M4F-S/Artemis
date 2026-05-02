@@ -22,9 +22,10 @@ You are working on **Artemis**, a next-generation cross-platform endpoint protec
 ## How to continue
 
 - Pick a ticket from `docs/12-task-backlog.md`. Tickets carry acceptance criteria.
+- If running as one of the parallel implementation workstreams, use the matching prompt in `docs/session-prompts/` (WS-A through WS-H), and respect the file-ownership rules in `docs/23-parallel-sessions.md`.
 - If the ticket touches a pillar, re-read the pillar doc before coding.
 - Honor the ADRs in `docs/09-adr/` — they're locked decisions; argue for changes via a new ADR superseding the old one, not by silently deviating.
-- Branch naming: `claude/<short-task>-<id>`.
+- Branch naming: `claude/<short-task>-<id>` (general) or the workstream-specific prefix `tl/`, `sensor/`, `daemon/`, `cp/`, `ui/`, `det/`, `llm/`, `harden/`.
 - Commit messages: imperative mood, scoped prefix (`feat:`, `fix:`, `docs:`, `chore:`, `test:`).
 - Always update `docs/14-session-handoff.md` at the end of a working session.
 
