@@ -1,5 +1,7 @@
 # Artemis
 
+> **Status: Paused (May 2026).** This project is on hold pending capital and a senior co-founder. The full architectural specification is preserved as a complete reference (97 docs across 22 capability pillars, 18 ADRs, samples, session prompts, senior audit). See [`docs/14-session-handoff.md`](docs/14-session-handoff.md) for the full closure context, and [`docs/29-senior-audit.md`](docs/29-senior-audit.md) for the honest market positioning. Resumption is realistic when (a) a senior co-founder is recruited, (b) EXIST / seed funding is secured, and (c) the scope is narrowed to a single wedge (the strategic review recommends privacy-first Linux EDR for EU developers and small institutions). The spec is a founder portfolio asset; preserve it.
+
 Next-generation, cross-platform endpoint protection for the SMB / mid-market.
 
 Artemis is **architecture-spec stage** — no production code yet. This repo currently contains only design documents. The intent is to lock the design before any line of code is written, so the engineering team (or a future automation) can implement directly from the spec.

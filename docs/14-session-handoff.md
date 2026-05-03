@@ -473,6 +473,54 @@ Repo is now in **launch state**. The owner opens `docs/31-launch.md` and runs th
 
 ---
 
+## 2026-05-01 — Session 8 (Claude Code, opus-4-7) — Project paused
+
+The project owner decided to pause Artemis pending capital and a senior co-founder. The decision followed a candid market-comparison and execution-feasibility review.
+
+### Reasons stated by the owner
+
+- No budget at present.
+- No time to execute alongside ongoing commitments.
+- Recognition that the 22-pillar institutional XDR scope requires resources not currently available (~50 engineers, €30–80M of capital, 3–5 years).
+- Acknowledgement that pursuing offensive-tooling jurisdictional arbitrage (UAE / Egypt) is not a viable path — increases legal exposure rather than reducing it, and destroys institutional-customer trust.
+- Choice to preserve energy for when conditions are right rather than burn out attempting an under-resourced launch.
+
+This is a mature decision. It is not a failure. It is the senior move.
+
+### What is preserved
+
+- Full spec: 97 documents across vision, threat model, architecture, sensors, 22 pillars, data model, control plane, ops, roadmap, ADRs, glossary, onboarding, design-partner program, 42 Berlin track, customer lifecycle, internal IR, versioning, senior audit, research backlog, launch playbook, parallel-session prompts, samples (proto / OpenAPI / SQL / YAML / TOML).
+- 18 ADRs covering the architectural and safety contracts.
+- 8 parallel-session prompts + coordinator playbook.
+- Senior audit (`docs/29-senior-audit.md`) with the honest competitive picture.
+- Research backlog (`docs/30-research-backlog.md`) with 12 research items + 9 important issues tracked.
+- Clean Git history on branch `claude/research-antivirus-ideas-BWqcG`.
+- Tag: `spec-paused-2026-05`.
+
+### What is NOT done (deliberately)
+
+- The repo is not archived. That is an owner action via GitHub UI (Settings → Danger Zone → Archive this repository) and is the recommended next step if the pause is expected to last more than a few weeks.
+- The repo is not deleted. Deletion is irreversible; the spec is a portfolio asset; preserve it.
+- No new ADR was authored to record the pause-and-rescope decision. If the project resumes, the first ADR (likely ADR-0019) should formally record the wedge decision and what the v1 scope is.
+
+### Strategic recommendations captured for future-self
+
+If / when the project resumes:
+
+1. **Read this entry first.** Then `docs/29-senior-audit.md` for the honest competitive picture.
+2. **Pick a wedge.** Do not attempt all 22 pillars. The strategic-review recommendation is **privacy-first Linux EDR for European developers and small institutions** — leverages the strongest differentiators (eBPF abuse detection, privacy posture, intent sessions, autonomic safety contracts) against the weakest competitor positioning (US cloud reluctance in EU regulated industries). 42 Berlin → TU Berlin → Charité Universitätsmedizin → Berlin Senate IT or Fraunhofer is a coherent customer ladder.
+3. **Recruit one senior co-founder before any code.** Senior Rust + kernel + crypto experience, equity-aligned. The spec is a strong recruiting asset — show it.
+4. **Apply to EXIST Forschungstransfer** via TU Berlin Centre for Entrepreneurship before any VC conversation. €125k/founder/year for up to 18 months.
+5. **Apply to Fraunhofer SIT FOKUS** if continuous-evolution Apollo or any offensive-research path is desired. Their authorization framework covers what jurisdictional arbitrage cannot.
+6. **Drop continuous-evolution Apollo** for v1. Static Apollo from ADR-0012 is enough until a Phase 6+ research budget exists.
+7. **Use the existing session-prompt + parallel-session protocol** to execute the wedge. The infrastructure is ready.
+
+### Final note
+
+The work was worth doing for the learning alone. The spec stands as evidence of architectural discipline that few pre-revenue founders ever produce. The right time to resume will arrive — not before, not after.
+
+---
+
 ## (Future sessions add entries below)
 
 > Template:
