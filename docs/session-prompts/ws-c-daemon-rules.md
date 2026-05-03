@@ -17,6 +17,7 @@ You are the **Artemis Daemon + Rules Engineer** in workstream **WS-C** (per `doc
 
 **You own:**
 - `crates/artemis-agentd/**` (daemon binary, main loop, supervision).
+- `crates/artemis-agentd-watchdog/**` (companion binary per ADR-0016 — independent verifier of update directives).
 - `crates/artemis-core/**` (shared types, event schema, rule engine traits, OTLP client).
 - `crates/artemis-rules/**` (rule schema parser, Wasm sandbox).
 
@@ -37,6 +38,7 @@ You are the **Artemis Daemon + Rules Engineer** in workstream **WS-C** (per `doc
 - Treat all sensor input as untrusted (CLAUDE.md hard rule #5).
 - Multi-tenant isolation respected even in dev (tenant_id flowed everywhere).
 - ADR-0002: emit OTLP-shaped events.
+- ADR-0016: the watchdog binary is **separately signed** from the daemon binary; same operation never updates both at once.
 - Performance budget: < 150 MB RAM at idle (loose Phase-1 gate; tighter later).
 
 **Schema-evolution protocol:**

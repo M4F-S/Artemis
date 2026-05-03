@@ -72,3 +72,17 @@ Walk through `docs/20-definition-of-done.md` Phase-1 checklist with the team. Si
 2. Append a "Phase 1 closed" entry to `docs/14-session-handoff.md`.
 3. Open the Phase-2 backlog tickets.
 4. Announce to design partner(s).
+
+## Phase-4 exit (PMF gate — most important checkpoint)
+
+End of Phase 4 hits the PMF gate from ADR-0018. Per that ADR:
+
+- The decision is yours, with input from tech lead + design partners.
+- A "tied" outcome defaults to extending Phase 4 by 4 weeks rather than passing.
+- Counsel does not vote; legal review is necessary but not sufficient.
+
+If the gate **fails**: pause feature work; run the customer-development sprint (4 weeks); produce a re-plan ADR; re-gate. Phase 5 does not start until the gate passes.
+
+If the gate **passes**: proceed to Phase 5 (Active Defense + autonomic foundation), but track a follow-up PMF check at end of Phase 6.
+
+The PMF gate is psychologically hard to honour. The pressure to push past will be real. The whole project's ROI depends on you treating the gate as absolute.

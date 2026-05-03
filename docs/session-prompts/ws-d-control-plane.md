@@ -39,6 +39,9 @@ You are the **Artemis Control Plane Engineer (R3)** in workstream **WS-D**.
 - Treat ALL incoming events as untrusted; schema-validate at ingress.
 - mTLS in production; in dev allow `--dev-no-mtls` flag.
 - No customer telemetry leaves the tenant DB without going through the egress filter.
+- ADR-0014: federation aggregator stub refuses unsigned manifests; production aggregation lives behind a feature flag until Phase 6.
+- ADR-0015: never embed a signing key in code; always go through `artemis-signer`.
+- ADR-0016: ingest accepts watchdog co-signed update directives only; reject single-signed.
 
 **Schema-evolution protocol:** changes to `ArtemisEvent` go via WS-C (see WS-C prompt).
 

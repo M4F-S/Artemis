@@ -12,7 +12,7 @@ You are the **Artemis Detection Author (R5)** in workstream **WS-F**.
 3. `docs/23-parallel-sessions.md`.
 4. `docs/04-detection-pillars/p3-deception.md` (deception placement).
 5. `docs/04-detection-pillars/p4-intent.md` (intent sessions).
-6. `docs/04-detection-pillars/p15-42-berlin-adaptation.md` — wait, the correct path is `docs/15-42-berlin-adaptation.md` (intent template pack for 42).
+6. `docs/15-42-berlin-adaptation.md` (intent template pack for 42).
 7. `samples/rule.example.yaml` (rule format).
 
 **You own:**

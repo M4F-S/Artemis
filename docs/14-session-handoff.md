@@ -416,6 +416,63 @@ Repo is **green-with-conditions ready** for parallel implementation sessions:
 
 ---
 
+## 2026-05-01 — Session 7 (Claude Code, opus-4-7) — Pre-launch tightening
+
+### What was done
+
+Final pre-launch pass to incorporate ADR-0014–0018 into the workstream prompts and the bootstrap PR scope, plus produce a single-page launch doc.
+
+**New (1 file):**
+- `docs/31-launch.md` — single-page launch playbook. Pre-flight checklist, six-step launch sequence (create branch → paste WS-A prompt → review & merge → open 3 parallel sessions → coordinator daily routine → Phase-1 exit gate), status snapshot, "what cannot start without," "when something goes wrong," and quick cross-references.
+
+**Updated (5 files):**
+- `docs/24-first-pr.md` — bootstrap PR scope expanded:
+  - Added `crates/artemis-agentd-watchdog/` (ADR-0016).
+  - Added `crates/artemis-signer/` stub (ADR-0015).
+  - Added `.github/workflows/hard-rules.yml` (cargo-deny + Semgrep + capability-allowlist test per ADR-0017).
+  - Added `.github/workflows/sbom.yml` (cyclonedx-cargo + syft per R11).
+  - Added `.github/workflows/transparency.yml` (Rekor-style stub per ADR-0015 / ADR-0016).
+  - Added `.github/semgrep/artemis-rules.yml`.
+  - CI gates list expanded.
+- `docs/session-prompts/ws-a-tech-lead.md` — references ADRs 0014–0018 as additional scope; updated "tickets" to mention Semgrep / cargo-deny / SBOM / transparency-log stub.
+- `docs/session-prompts/ws-c-daemon-rules.md` — adds `crates/artemis-agentd-watchdog/` to ownership; new hard rule on watchdog being separately signed (ADR-0016).
+- `docs/session-prompts/ws-d-control-plane.md` — adds 3 hard rules referencing ADRs 0014 (federation aggregator stub), 0015 (no embedded signing keys), 0016 (watchdog-cosigned update directives).
+- `docs/session-prompts/coordinator-playbook.md` — adds Phase-4 exit (PMF gate) section per ADR-0018.
+- `docs/session-prompts/ws-f-detection.md` — fixed typo M7 (incorrect path to 42 Berlin doc).
+- `README.md` — links `docs/31-launch.md` at the top of the implementation-readiness pack.
+
+### Decisions made
+
+- Bootstrap PR explicitly carries scaffolding for ADR-0014–0018, not just ADR-0001/0002/0003.
+- All session prompts updated to reflect the senior-audit decisions.
+- The "go" message is `docs/31-launch.md`; everything else is reference.
+
+### Open questions (status)
+
+- Legal review of ADR-0009 / ADR-0012 / ADR-0013 + the new ADR-0014 / 0015 / 0016 / 0017 / 0018 — owner waiting; can begin Phase 1 with P14 disabled.
+- 42 Berlin pitch — owner sends when implementation starts.
+- Recruitment — owner pursues when implementation starts.
+- Compensation, hosting, license — deferred.
+- PMF survey vendor — to be contracted by Phase 3 (per ADR-0018).
+- Threshold-cryptography vendor — needed for ADR-0015's threshold signing; either OSS implementation or vendor (Fireblocks / etc.) — flagged for Phase 4 onward.
+
+### What's next
+
+Repo is now in **launch state**. The owner opens `docs/31-launch.md` and runs through it. Within 24 hours of starting, the WS-A bootstrap PR should be drafted; within 72 hours it should be merged and WS-B + WS-D + WS-F sessions should be active.
+
+### Files touched
+
+- New (1): `docs/31-launch.md`.
+- Updated (6): `docs/24-first-pr.md`, `docs/session-prompts/ws-a-tech-lead.md`, `docs/session-prompts/ws-c-daemon-rules.md`, `docs/session-prompts/ws-d-control-plane.md`, `docs/session-prompts/ws-f-detection.md`, `docs/session-prompts/coordinator-playbook.md`, `README.md`, this file.
+
+### Risks / things I'd flag
+
+- The bootstrap PR scope grew. WS-A may take ~3 days instead of 1. Acceptable; budget for it.
+- Threshold-cryptography support is the single most uncertain dependency for ADR-0015. If the OSS Rust ecosystem doesn't deliver in time, fall back to single-key signing in early phases and treat threshold as a Phase 4+ upgrade (file a follow-up ADR if so).
+- The PMF gate is a long way away (end of Phase 4); cultural pressure to forget about it grows over time. Treat the contract for the PMF survey vendor as a Phase-3 hard milestone.
+
+---
+
 ## (Future sessions add entries below)
 
 > Template:

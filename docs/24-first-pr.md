@@ -31,7 +31,9 @@ artemis/
 ├── rust-toolchain.toml     ← stable + nightly pins
 ├── .editorconfig
 ├── .markdownlint.json
-├── deny.toml               ← cargo-deny config (license + ban policies)
+├── deny.toml               ← cargo-deny config: licenses, advisories,
+│                            sources, banned crates (incl. apollo-* refusal)
+│                            per ADR-0017 + research-backlog R12
 ├── rustfmt.toml
 ├── clippy.toml
 ├── .vscode/extensions.json ← recommended dev extensions
@@ -52,14 +54,39 @@ crates/
 ├── artemis-core/           ← shared types and traits; depended on by ~all
 ├── artemis-bpf/            ← cargo-bpf placeholder; #![no_std] target = bpfel-unknown-none
 ├── artemis-agentd/         ← daemon binary; main.rs prints version and exits cleanly
+├── artemis-agentd-watchdog/← independent watchdog companion (ADR-0016)
 ├── artemis-sensor-linux/   ← lib placeholder
 ├── artemis-cli/            ← CLI binary; clap skeleton with `--version`
 ├── artemis-rules/          ← rule schema + Wasm sandbox placeholder
 ├── artemis-ingest/         ← server binary; tokio + tonic placeholder
-└── artemis-detection/      ← detection engine placeholder
+├── artemis-detection/      ← detection engine placeholder
+└── artemis-signer/         ← HSM-fronted signing service stub (ADR-0015)
 ```
 
 Each crate's `Cargo.toml` declares the workspace dependency it needs (`tokio`, `tracing`, `serde`, `anyhow`, `thiserror`); no business logic beyond stub.
+
+### CI scaffolding (active, not template)
+
+```
+.github/
+├── PULL_REQUEST_TEMPLATE.md (already in repo)
+├── CODEOWNERS               (already in repo)
+├── workflows/
+│   ├── ci.yml               ← renamed from .tpl; passes the matrix
+│   ├── security.yml         ← renamed from .tpl; cargo-audit + deps + secrets + SLSA
+│   ├── hard-rules.yml       ← NEW: ADR-0017 layered enforcement
+│   │                          - cargo-deny check
+│   │                          - Semgrep with .github/semgrep/ ruleset
+│   │                          - capability-allowlist runtime test (stub)
+│   ├── sbom.yml             ← NEW: cyclonedx-cargo + syft on every release tag
+│   │                          (research-backlog R11)
+│   └── transparency.yml     ← NEW: stub publishing build artefact metadata to a
+│                              local Rekor mirror (real Rekor wiring in Phase 5)
+└── semgrep/
+    └── artemis-rules.yml    ← rule pack: forbidden APIs, tenant_id propagation,
+                              Apollo dep refusal, network primitives outside
+                              artemis-egress
+```
 
 ### Apps
 
@@ -124,7 +151,9 @@ dev/
 - `cargo test --workspace --all-targets`
 - `pnpm -C apps/console install --frozen-lockfile && pnpm -C apps/console test --if-present`
 - `cargo deny check`
-- Hard-rules-scan invariant green
+- Hard-rules-scan invariants green (grep + Semgrep + cargo-deny per ADR-0017)
+- SBOM produced on tag (cyclonedx-cargo + syft per research-backlog R11)
+- Transparency-log stub publishes a build attestation per ADR-0015 / ADR-0016
 - Markdown link check green
 
 ## Acceptance checklist for this PR
